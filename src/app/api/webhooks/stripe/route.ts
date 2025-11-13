@@ -65,6 +65,12 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        await handlePaymentFailed(invoice);
+        break;
+      }
+
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
@@ -190,6 +196,23 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   await handleSubscriptionUpdate(subscription);
+}
+
+async function handlePaymentFailed(invoice: Stripe.Invoice) {
+  // Invoice.subscription can be a string ID or a Subscription object
+  const subscriptionId =
+    typeof (invoice as any).subscription === "string"
+      ? (invoice as any).subscription
+      : (invoice as any).subscription?.id;
+  if (!subscriptionId) return;
+
+  // Update subscription status to PAST_DUE
+  await prisma.subscription.updateMany({
+    where: { stripeId: subscriptionId },
+    data: {
+      status: "PAST_DUE",
+    },
+  });
 }
 
 async function addSubscriptionCredits(userId: string, plan: string) {

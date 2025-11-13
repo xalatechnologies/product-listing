@@ -1,0 +1,280 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, TrendingUp, Clock, Star, Users, Zap } from "lucide-react";
+import Image from "next/image";
+
+export const EnhancedHero = (): React.ReactElement => {
+  return (
+    <section className="relative bg-gradient-to-b from-orange-50 via-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pt-24 pb-16 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 opacity-5" style={{
+          backgroundImage: `linear-gradient(to right, #FF9900 1px, transparent 1px), linear-gradient(to bottom, #FF9900 1px, transparent 1px)`,
+          backgroundSize: '50px 50px',
+        }}/>
+
+        {/* Floating Shapes */}
+        <motion.div
+          className="absolute top-20 right-10 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-20 left-10 w-96 h-96 bg-orange-400/5 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        {/* Top Bar - Trust Indicators */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-wrap items-center justify-center gap-8 mb-12 text-sm text-gray-600 dark:text-gray-400"
+        >
+          <div className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-orange-600 fill-orange-600" />
+            <span className="font-semibold">4.9/5</span>
+            <span className="text-gray-500">(2,500+ reviews)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-orange-600" />
+            <span className="font-semibold">10,000+</span>
+            <span className="text-gray-500">active sellers</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-orange-600" />
+            <span className="font-semibold">47%</span>
+            <span className="text-gray-500">avg. sales increase</span>
+          </div>
+        </motion.div>
+
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Column - Content */}
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-center lg:text-left"
+          >
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-full text-sm font-bold mb-6 shadow-lg"
+            >
+              <Zap className="w-4 h-4" />
+              #1 AI Listing Generator for E-commerce
+            </motion.div>
+
+            {/* Main Headline */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              <span className="text-gray-900 dark:text-white">
+                Generate Professional
+              </span>
+              <br />
+              <span className="text-orange-600 dark:text-orange-500">
+                Product Listings
+              </span>
+              <br />
+              <span className="text-gray-900 dark:text-white">
+                in 2 Minutes
+              </span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+              AI-powered images, A+ content, and listings for Amazon, Shopify, eBay & Etsy.
+              <span className="font-semibold text-orange-600"> Save 20+ hours per week.</span>
+            </p>
+
+            {/* Key Benefits with Icons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+              {[
+                { icon: Clock, text: "2-minute generation", subtext: "Not hours" },
+                { icon: TrendingUp, text: "47% higher conversions", subtext: "Proven results" },
+                { icon: CheckCircle2, text: "100% compliant", subtext: "All platforms" },
+                { icon: Zap, text: "No design skills needed", subtext: "AI does it all" },
+              ].map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                  className="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <benefit.icon className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {benefit.text}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      {benefit.subtext}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
+            >
+              <Link
+                href="/auth/signin"
+                className="group inline-flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-10 py-5 rounded-lg text-lg font-bold shadow-2xl hover:shadow-orange-600/50 transition-all duration-200 hover:scale-105"
+              >
+                Start Free 14-Day Trial
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="#demo"
+                className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white px-10 py-5 rounded-lg text-lg font-semibold border-2 border-gray-300 dark:border-gray-600 shadow-lg transition-all duration-200"
+              >
+                Watch 2-Min Demo
+              </Link>
+            </motion.div>
+
+            {/* Trust Badges */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 1 }}
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm text-gray-600 dark:text-gray-400"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="font-medium">No credit card required</span>
+              </div>
+              <span className="text-gray-400">•</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="font-medium">Free migration support</span>
+              </div>
+              <span className="text-gray-400">•</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <span className="font-medium">Cancel anytime</span>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* Right Column - Visual Demo */}
+          <motion.div
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="relative"
+          >
+            {/* Main Demo Card */}
+            <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8">
+              {/* Live Stats Banner */}
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                🔥 87 listings created in the last hour
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                {[
+                  { value: "< 2 min", label: "Generation Time", icon: Clock, trend: "Fast" },
+                  { value: "+47%", label: "Avg. Conversion", icon: TrendingUp, trend: "Up" },
+                  { value: "10,000+", label: "Active Users", icon: Users, trend: "Growing" },
+                  { value: "500K+", label: "Listings Made", icon: CheckCircle2, trend: "Proven" },
+                ].map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
+                    className="relative bg-gradient-to-br from-orange-50 to-white dark:from-gray-700 dark:to-gray-800 p-6 rounded-xl border-2 border-orange-200 dark:border-orange-900/50 hover:border-orange-600 transition-colors"
+                  >
+                    <stat.icon className="w-8 h-8 text-orange-600 mb-3" />
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                      {stat.value}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      {stat.label}
+                    </div>
+                    <div className="inline-flex items-center gap-1 text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
+                      <TrendingUp className="w-3 h-3" />
+                      {stat.trend}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Platform Badges */}
+              <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 text-center font-medium">
+                  Works seamlessly with
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {["Amazon", "Shopify", "eBay", "Etsy", "Walmart"].map((platform, index) => (
+                    <motion.div
+                      key={platform}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 1 + index * 0.1 }}
+                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600"
+                    >
+                      {platform}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Badge - Award */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.2 }}
+              className="absolute -bottom-6 -left-6 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-2xl border-2 border-orange-600"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <Star className="w-6 h-6 text-orange-600 fill-orange-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    #1 Rated Tool
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                    2025 Seller Choice Awards
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};

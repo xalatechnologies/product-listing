@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/landing/Navigation";
-import { AmazonHero } from "@/components/landing/AmazonHero";
+import { EnhancedHero } from "@/components/landing/EnhancedHero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { BusinessFeatures } from "@/components/landing/BusinessFeatures";
 import { CaseStudies } from "@/components/landing/CaseStudies";
@@ -36,7 +36,7 @@ export default async function Page() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1">
-        <AmazonHero />
+        <EnhancedHero />
         <HowItWorks />
         <BusinessFeatures />
         <CaseStudies />
