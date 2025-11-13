@@ -198,7 +198,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Upload product images above, then generate your listing images
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <button
                 onClick={() => {
                   if (!productImages || productImages.length === 0) {
@@ -214,7 +214,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Sparkles className="h-4 w-4" />
-                {generateImage.isPending ? "Generating..." : "Generate Main Image"}
+                {generateImage.isPending ? "Generating..." : "Main Image"}
               </button>
               <button
                 onClick={() => {
@@ -231,7 +231,75 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
                 className="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Sparkles className="h-4 w-4" />
-                {generateImage.isPending ? "Generating..." : "Generate Infographic"}
+                {generateImage.isPending ? "Generating..." : "Infographic"}
+              </button>
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.FEATURE_HIGHLIGHT,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Feature Highlight"}
+              </button>
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.LIFESTYLE,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Lifestyle"}
+              </button>
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.COMPARISON_CHART,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Comparison Chart"}
+              </button>
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.DIMENSION_DIAGRAM,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Dimension Diagram"}
               </button>
             </div>
           </div>

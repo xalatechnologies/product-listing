@@ -56,9 +56,26 @@ export const generateListingImagesFn = inngest.createFunction(
             await generateInfographic(projectId, userId, style, style);
             break;
           }
-          case ImageType.LIFESTYLE:
-            // TODO: Implement lifestyle image generation
-            throw new Error("Lifestyle image generation not yet implemented");
+          case ImageType.FEATURE_HIGHLIGHT: {
+            const { generateFeatureHighlight } = await import("@/lib/ai/generators/featureHighlight");
+            await generateFeatureHighlight(projectId, userId, undefined, style);
+            break;
+          }
+          case ImageType.LIFESTYLE: {
+            const { generateLifestyle } = await import("@/lib/ai/generators/lifestyle");
+            await generateLifestyle(projectId, userId, undefined, style);
+            break;
+          }
+          case ImageType.COMPARISON_CHART: {
+            const { generateComparisonChart } = await import("@/lib/ai/generators/comparisonChart");
+            await generateComparisonChart(projectId, userId, "features", style);
+            break;
+          }
+          case ImageType.DIMENSION_DIAGRAM: {
+            const { generateDimensionDiagram } = await import("@/lib/ai/generators/dimensionDiagram");
+            await generateDimensionDiagram(projectId, userId, undefined, style);
+            break;
+          }
           default:
             throw new Error(`Unknown image type: ${imageType}`);
         }
