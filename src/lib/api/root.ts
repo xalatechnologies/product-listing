@@ -1,5 +1,9 @@
 import { createCallerFactory, createTRPCRouter } from "./trpc";
-// import all routers here
+import { projectRouter } from "./routers/project.router";
+import { brandKitRouter } from "./routers/brandKit.router";
+import { imageRouter } from "./routers/image.router";
+import { subscriptionRouter } from "./routers/subscription.router";
+import { aPlusRouter } from "./routers/aPlus.router";
 
 /**
  * This is the primary router for your server.
@@ -7,7 +11,11 @@ import { createCallerFactory, createTRPCRouter } from "./trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  // add routers here
+  project: projectRouter,
+  brandKit: brandKitRouter,
+  image: imageRouter,
+  subscription: subscriptionRouter,
+  aPlus: aPlusRouter,
 });
 
 // export type definition of API
