@@ -1,12 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, TrendingUp, Clock, Star, Users, Zap } from "lucide-react";
+import { motion, useAnimation } from "framer-motion";
+import { ArrowRight, CheckCircle2, TrendingUp, Clock, Star, Users, Zap, Sparkles } from "lucide-react";
 import Image from "next/image";
 
 export const EnhancedHero = (): React.ReactElement => {
+  const [listingsCount, setListingsCount] = useState(87);
+
+  // Animated counter for listings created
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setListingsCount((prev) => (prev >= 95 ? 87 : prev + 1));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
   return (
     <section className="relative bg-gradient-to-b from-orange-50 via-white to-gray-50 dark:from-gray-900 dark:to-gray-800 pt-24 pb-16 overflow-hidden">
       {/* Animated Background Elements */}
@@ -17,12 +26,14 @@ export const EnhancedHero = (): React.ReactElement => {
           backgroundSize: '50px 50px',
         }}/>
 
-        {/* Floating Shapes */}
+        {/* Floating Shapes - Enhanced */}
         <motion.div
           className="absolute top-20 right-10 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
+            x: [0, 30, 0],
+            y: [0, -20, 0],
           }}
           transition={{
             duration: 8,
@@ -35,6 +46,8 @@ export const EnhancedHero = (): React.ReactElement => {
           animate={{
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.4, 0.2],
+            x: [0, -40, 0],
+            y: [0, 30, 0],
           }}
           transition={{
             duration: 10,
@@ -43,6 +56,42 @@ export const EnhancedHero = (): React.ReactElement => {
             delay: 1,
           }}
         />
+        <motion.div
+          className="absolute top-1/2 left-1/3 w-80 h-80 bg-orange-600/3 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.4, 1],
+            opacity: [0.1, 0.3, 0.1],
+            rotate: [0, 180, 360],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+
+        {/* Floating Particles */}
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-orange-500/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
@@ -78,15 +127,44 @@ export const EnhancedHero = (): React.ReactElement => {
             transition={{ duration: 0.7 }}
             className="text-center lg:text-left"
           >
-            {/* Badge */}
+            {/* Badge - Enhanced with pulse animation */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-full text-sm font-bold mb-6 shadow-lg"
+              className="relative inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-full text-sm font-bold mb-6 shadow-lg overflow-hidden group"
             >
-              <Zap className="w-4 h-4" />
-              #1 AI Listing Generator for E-commerce
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                animate={{
+                  x: ['-100%', '100%'],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="w-4 h-4 relative z-10" />
+              </motion.div>
+              <span className="relative z-10">#1 AI Listing Generator for E-commerce</span>
+              <motion.div
+                className="absolute -inset-1 bg-orange-600/50 rounded-full blur-md"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                style={{ zIndex: -1 }}
+              />
             </motion.div>
 
             {/* Main Headline */}

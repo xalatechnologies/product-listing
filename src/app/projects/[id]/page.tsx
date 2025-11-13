@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Edit, Trash2, Download, Sparkles, FileText, Zap, X } from "lucide-react";
 import { ImageUpload, ImagePreview } from "@/components/ImageUpload";
+import { ExportSelector } from "@/components/ExportSelector";
 import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
 import { useState } from "react";
@@ -350,6 +351,25 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Export Section */}
+      {generatedImages && generatedImages.length > 0 && (
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Export Images
+            </h2>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <ExportSelector
+              projectId={projectId}
+              onExportComplete={(downloadUrl) => {
+                toast.success("Export completed! Download starting...");
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* A+ Content Generation Modal */}
       {showAPlusModal && (
