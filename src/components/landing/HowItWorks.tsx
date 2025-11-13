@@ -20,31 +20,93 @@ const Step = ({ number, title, description, icon, delay }: StepProps): React.Rea
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      className="relative"
+      whileHover={{ y: -10 }}
+      className="relative group"
     >
       <div className="flex flex-col items-center text-center">
-        {/* Step Number */}
-        <div className="w-16 h-16 bg-orange-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 shadow-lg">
+        {/* Step Number - Enhanced */}
+        <motion.div
+          className="relative w-16 h-16 bg-gradient-to-br from-orange-600 to-orange-700 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 shadow-lg"
+          whileHover={{
+            scale: 1.1,
+            rotate: [0, -5, 5, 0],
+            boxShadow: "0 20px 25px -5px rgba(255, 153, 0, 0.3), 0 10px 10px -5px rgba(255, 153, 0, 0.2)",
+          }}
+          transition={{ duration: 0.3 }}
+        >
           {number}
-        </div>
+          <motion.div
+            className="absolute inset-0 rounded-full bg-orange-400/30"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [0.5, 0, 0.5],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: delay,
+            }}
+          />
+        </motion.div>
 
-        {/* Icon */}
-        <div className="w-20 h-20 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center mb-4">
+        {/* Icon - Enhanced */}
+        <motion.div
+          className="relative w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/10 rounded-2xl flex items-center justify-center mb-4 border-2 border-orange-200 dark:border-orange-900/30 group-hover:border-orange-400 dark:group-hover:border-orange-600 transition-colors overflow-hidden"
+          whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-orange-200/50 to-transparent dark:from-orange-600/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+          />
           {icon}
-        </div>
+        </motion.div>
 
         {/* Content */}
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
+        <motion.h3
+          className="text-2xl font-bold text-gray-900 dark:text-white mb-3"
+          whileHover={{ scale: 1.05 }}
+        >
           {title}
-        </h3>
+        </motion.h3>
         <p className="text-gray-600 dark:text-gray-300 leading-relaxed max-w-xs">
           {description}
         </p>
+
+        {/* Floating glow effect */}
+        <motion.div
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-orange-300/20 dark:bg-orange-600/10 rounded-full blur-3xl -z-10"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.6, 0.3],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            delay: delay,
+          }}
+        />
       </div>
 
-      {/* Connector Line (except for last item) */}
+      {/* Connector Line (except for last item) - Enhanced */}
       {number < 4 && (
-        <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-orange-600 to-orange-300 -z-10" />
+        <motion.div
+          className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-orange-600 to-orange-300 -z-10 overflow-hidden"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: delay + 0.3 }}
+        >
+          <motion.div
+            className="h-full w-8 bg-gradient-to-r from-transparent via-orange-400 to-transparent"
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "linear",
+              delay: delay,
+            }}
+          />
+        </motion.div>
       )}
     </motion.div>
   );
