@@ -1,5 +1,14 @@
 # MVP Roadmap — AI Product Listing & A+ Content Generator
 
+> **Note**: This roadmap aligns with the complete blueprint in `COMPLETE-BLUEPRINT.md`
+
+## Phase 0: Validation (2-5 Days)
+- [ ] Launch waitlist landing page
+- [ ] Collect emails from sellers and agencies
+- [ ] Interview 10-15 Amazon sellers
+- [ ] Validate demand and pricing
+- [ ] Build initial waitlist
+
 ## Phase 1: Foundation & Core MVP (Weeks 1-4)
 
 ### Week 1: Project Setup & Database Schema
@@ -31,6 +40,16 @@
 - [ ] Implement lifestyle image generator
 - [ ] Create comparison chart generator
 - [ ] Build dimension diagram generator
+
+## Phase 1.5: Core Image Generation (Weeks 3-4)
+- [ ] AI product reconstruction engine
+- [ ] Background removal service
+- [ ] Main Amazon-compliant image generator (white background, 1000x1000px)
+- [ ] Feature highlight image generator
+- [ ] Infographic generator
+- [ ] Comparison chart generator
+- [ ] Dimension diagram generator
+- [ ] Lifestyle image generator
 
 ## Phase 2: A+ Content & Branding (Weeks 5-8)
 
