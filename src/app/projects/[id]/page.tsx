@@ -215,6 +215,19 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               </dd>
             </div>
           )}
+          {project.brandKit && (
+            <div>
+              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Brand Kit</dt>
+              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <Link
+                  href={`/brand-kits/${project.brandKit.id}`}
+                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                >
+                  {project.brandKit.name}
+                </Link>
+              </dd>
+            </div>
+          )}
           <div>
             <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
             <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">

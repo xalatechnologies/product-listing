@@ -1,24 +1,24 @@
 "use client";
 
 /**
- * Edit project page
+ * Edit brand kit page
  */
 
 import { use } from "react";
 import { api } from "@/lib/trpc/react";
-import { ProjectForm } from "@/components/ProjectForm";
+import { BrandKitForm } from "@/components/BrandKitForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-interface EditProjectPageProps {
+interface EditBrandKitPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default function EditProjectPage({ params }: EditProjectPageProps) {
+export default function EditBrandKitPage({ params }: EditBrandKitPageProps) {
   const resolvedParams = use(params);
-  const projectId = resolvedParams.id;
+  const brandKitId = resolvedParams.id;
 
-  const { data: project, isLoading } = api.project.get.useQuery({ id: projectId });
+  const { data: brandKit, isLoading } = api.brandKit.get.useQuery({ id: brandKitId });
 
   if (isLoading) {
     return (
@@ -28,22 +28,22 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     );
   }
 
-  if (!project) {
+  if (!brandKit) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Project not found
+            Brand kit not found
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            The project you're looking for doesn't exist or you don't have access to it.
+            The brand kit you're looking for doesn't exist or you don't have access to it.
           </p>
           <Link
-            href="/dashboard"
+            href="/brand-kits"
             className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            Back to Brand Kits
           </Link>
         </div>
       </div>
@@ -53,32 +53,33 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <Link
-        href={`/projects/${projectId}`}
+        href={`/brand-kits/${brandKitId}`}
         className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Project
+        Back to Brand Kit
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Project</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Brand Kit</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Update your project details
+          Update your brand identity system
         </p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <ProjectForm
-          projectId={projectId}
+        <BrandKitForm
+          brandKitId={brandKitId}
           initialData={{
-            name: project.name,
-            description: project.description || undefined,
-            productName: project.productName,
-            productCategory: project.productCategory || undefined,
-            brandKitId: project.brandKitId || undefined,
+            name: brandKit.name,
+            logoUrl: brandKit.logoUrl || undefined,
+            primaryColor: brandKit.primaryColor || undefined,
+            secondaryColor: brandKit.secondaryColor || undefined,
+            accentColor: brandKit.accentColor || undefined,
+            fontFamily: brandKit.fontFamily || undefined,
           }}
           onSuccess={() => {
-            window.location.href = `/projects/${projectId}`;
+            window.location.href = `/brand-kits/${brandKitId}`;
           }}
         />
       </div>
