@@ -36,8 +36,16 @@ export function ImageUpload({
 
     try {
       for (const file of fileArray) {
+        // Validate file type
         if (!acceptedTypes.includes(file.type)) {
-          toast.error(`${file.name} is not a supported image type`);
+          toast.error(`${file.name} is not a supported image type. Only JPEG, PNG, and WebP are allowed.`);
+          continue;
+        }
+
+        // Validate file size (10MB max)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          toast.error(`${file.name} is too large. Maximum file size is 10MB.`);
           continue;
         }
 

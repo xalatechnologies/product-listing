@@ -34,6 +34,7 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
   const [accentColor, setAccentColor] = useState(initialData?.accentColor || "");
   const [fontFamily, setFontFamily] = useState(initialData?.fontFamily || "");
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const createBrandKit = api.brandKit.create.useMutation({
     onSuccess: (brandKit) => {
@@ -87,16 +88,52 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Brand kit name is required";
+    } else if (name.length > 255) {
+      newErrors.name = "Brand kit name must be 255 characters or less";
+    }
+
+    if (logoUrl && logoUrl.trim()) {
+      try {
+        new URL(logoUrl);
+      } catch {
+        newErrors.logoUrl = "Logo URL must be a valid URL";
+      }
+    }
+
+    const hexColorRegex = /^#[0-9A-Fa-f]{6}$/;
+    if (primaryColor && !hexColorRegex.test(primaryColor)) {
+      newErrors.primaryColor = "Primary color must be a valid hex color (e.g., #FF0000)";
+    }
+    if (secondaryColor && !hexColorRegex.test(secondaryColor)) {
+      newErrors.secondaryColor = "Secondary color must be a valid hex color (e.g., #00FF00)";
+    }
+    if (accentColor && !hexColorRegex.test(accentColor)) {
+      newErrors.accentColor = "Accent color must be a valid hex color (e.g., #0000FF)";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
     const data = {
-      name,
-      logoUrl: logoUrl || undefined,
+      name: name.trim(),
+      logoUrl: logoUrl.trim() || undefined,
       primaryColor: primaryColor || undefined,
       secondaryColor: secondaryColor || undefined,
       accentColor: accentColor || undefined,
-      fontFamily: fontFamily || undefined,
+      fontFamily: fontFamily.trim() || undefined,
     };
 
     if (brandKitId) {
@@ -121,11 +158,22 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
           id="name"
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (errors.name) {
+              setErrors((prev) => ({ ...prev, name: "" }));
+            }
+          }}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          maxLength={255}
+          className={`mt-1 block w-full rounded-md border ${
+            errors.name
+              ? "border-red-500 dark:border-red-500"
+              : "border-gray-300 dark:border-gray-600"
+          } bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
           placeholder="My Brand Kit"
         />
+        {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
       </div>
 
       <div>
@@ -173,23 +221,53 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
         />
       </div>
 
-      <ColorPicker
-        label="Primary Color"
-        value={primaryColor}
-        onChange={setPrimaryColor}
-      />
+      <div>
+        <ColorPicker
+          label="Primary Color"
+          value={primaryColor}
+          onChange={(value) => {
+            setPrimaryColor(value);
+            if (errors.primaryColor) {
+              setErrors((prev) => ({ ...prev, primaryColor: "" }));
+            }
+          }}
+        />
+        {errors.primaryColor && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.primaryColor}</p>
+        )}
+      </div>
 
-      <ColorPicker
-        label="Secondary Color"
-        value={secondaryColor}
-        onChange={setSecondaryColor}
-      />
+      <div>
+        <ColorPicker
+          label="Secondary Color"
+          value={secondaryColor}
+          onChange={(value) => {
+            setSecondaryColor(value);
+            if (errors.secondaryColor) {
+              setErrors((prev) => ({ ...prev, secondaryColor: "" }));
+            }
+          }}
+        />
+        {errors.secondaryColor && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.secondaryColor}</p>
+        )}
+      </div>
 
-      <ColorPicker
-        label="Accent Color"
-        value={accentColor}
-        onChange={setAccentColor}
-      />
+      <div>
+        <ColorPicker
+          label="Accent Color"
+          value={accentColor}
+          onChange={(value) => {
+            setAccentColor(value);
+            if (errors.accentColor) {
+              setErrors((prev) => ({ ...prev, accentColor: "" }));
+            }
+          }}
+        />
+        {errors.accentColor && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.accentColor}</p>
+        )}
+      </div>
 
       <div>
         <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-700 dark:text-gray-300">

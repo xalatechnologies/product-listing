@@ -9,6 +9,7 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { SubscriptionPlan } from "@prisma/client";
 import Stripe from "stripe";
@@ -112,12 +113,18 @@ export const subscriptionRouter = createTRPCRouter({
       const userEmail = ctx.session.user.email;
 
       if (!userEmail) {
-        throw new Error("User email is required");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User email is required to create a subscription",
+        });
       }
 
       const priceId = PLAN_PRICE_IDS[input.plan];
       if (!priceId) {
-        throw new Error(`No price ID configured for plan: ${input.plan}`);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Subscription plan "${input.plan}" is not properly configured. Please contact support.`,
+        });
       }
 
       // Create Stripe checkout session
@@ -166,7 +173,10 @@ export const subscriptionRouter = createTRPCRouter({
       const userEmail = ctx.session.user.email;
 
       if (!userEmail) {
-        throw new Error("User email is required");
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User email is required to purchase credits",
+        });
       }
 
       const session = await stripe.checkout.sessions.create({
@@ -208,7 +218,10 @@ export const subscriptionRouter = createTRPCRouter({
     });
 
     if (!subscription || !subscription.stripeId) {
-      throw new Error("No active subscription found");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No active subscription found. Please subscribe to a plan first.",
+      });
     }
 
     // Cancel at period end
@@ -240,7 +253,10 @@ export const subscriptionRouter = createTRPCRouter({
     });
 
     if (!subscription || !subscription.stripeId) {
-      throw new Error("No canceled subscription found");
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "No canceled subscription found to resume.",
+      });
     }
 
     // Resume subscription
@@ -305,7 +321,10 @@ export const subscriptionRouter = createTRPCRouter({
 
       const balance = result._sum.amount || 0;
       if (balance < input.amount) {
-        throw new Error("Insufficient credits");
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Insufficient credits. You have ${balance} credits but need ${input.amount}. Please purchase more credits.`,
+        });
       }
 
       // Deduct credits

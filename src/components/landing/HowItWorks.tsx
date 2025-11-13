@@ -24,19 +24,19 @@ const Step = ({ number, title, description, icon, delay }: StepProps): React.Rea
       className="relative group"
     >
       <div className="flex flex-col items-center text-center">
-        {/* Step Number - Enhanced */}
+        {/* Step Number - Golden */}
         <motion.div
-          className="relative w-16 h-16 bg-gradient-to-br from-orange-600 to-orange-700 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 shadow-lg"
+          className="relative w-16 h-16 bg-gradient-to-br from-amber-600 to-amber-700 text-white rounded-full flex items-center justify-center text-2xl font-bold mb-4 shadow-lg"
           whileHover={{
             scale: 1.1,
             rotate: [0, -5, 5, 0],
-            boxShadow: "0 20px 25px -5px rgba(255, 153, 0, 0.3), 0 10px 10px -5px rgba(255, 153, 0, 0.2)",
+            boxShadow: "0 20px 25px -5px rgba(251, 191, 36, 0.4), 0 10px 10px -5px rgba(251, 191, 36, 0.3)",
           }}
           transition={{ duration: 0.3 }}
         >
           {number}
           <motion.div
-            className="absolute inset-0 rounded-full bg-orange-400/30"
+            className="absolute inset-0 rounded-full bg-amber-400/30"
             animate={{
               scale: [1, 1.5, 1],
               opacity: [0.5, 0, 0.5],
@@ -49,14 +49,14 @@ const Step = ({ number, title, description, icon, delay }: StepProps): React.Rea
           />
         </motion.div>
 
-        {/* Icon - Enhanced */}
+        {/* Icon - Golden */}
         <motion.div
-          className="relative w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-900/10 rounded-2xl flex items-center justify-center mb-4 border-2 border-orange-200 dark:border-orange-900/30 group-hover:border-orange-400 dark:group-hover:border-orange-600 transition-colors overflow-hidden"
+          className="relative w-20 h-20 bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-amber-900/10 rounded-2xl flex items-center justify-center mb-4 border-2 border-amber-200/70 dark:border-amber-900/30 group-hover:border-amber-400 dark:group-hover:border-amber-600 transition-colors overflow-hidden"
           whileHover={{ scale: 1.1, rotate: [0, -10, 10, 0] }}
           transition={{ duration: 0.5 }}
         >
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-orange-200/50 to-transparent dark:from-orange-600/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute inset-0 bg-gradient-to-r from-amber-200/50 to-transparent dark:from-amber-600/20 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
           />
           {icon}
         </motion.div>
@@ -72,9 +72,9 @@ const Step = ({ number, title, description, icon, delay }: StepProps): React.Rea
           {description}
         </p>
 
-        {/* Floating glow effect */}
+        {/* Floating glow effect - Golden */}
         <motion.div
-          className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-orange-300/20 dark:bg-orange-600/10 rounded-full blur-3xl -z-10"
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-amber-300/20 dark:bg-amber-600/10 rounded-full blur-3xl -z-10"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3],
@@ -87,17 +87,17 @@ const Step = ({ number, title, description, icon, delay }: StepProps): React.Rea
         />
       </div>
 
-      {/* Connector Line (except for last item) - Enhanced */}
+      {/* Connector Line - Golden */}
       {number < 4 && (
         <motion.div
-          className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-orange-600 to-orange-300 -z-10 overflow-hidden"
+          className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-amber-600 to-amber-300 -z-10 overflow-hidden"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: delay + 0.3 }}
         >
           <motion.div
-            className="h-full w-8 bg-gradient-to-r from-transparent via-orange-400 to-transparent"
+            className="h-full w-8 bg-gradient-to-r from-transparent via-amber-400 to-transparent"
             animate={{ x: ['-100%', '200%'] }}
             transition={{
               duration: 2,
@@ -184,7 +184,7 @@ export const HowItWorks = (): React.ReactElement => {
           >
             <Link
               href="/auth/signin"
-              className="relative inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-10 py-5 rounded-xl text-lg font-bold shadow-2xl hover:shadow-orange-600/50 transition-all duration-300 overflow-hidden group"
+              className="relative inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white px-10 py-5 rounded-xl text-lg font-bold shadow-2xl hover:shadow-amber-600/50 transition-all duration-300 overflow-hidden group"
             >
               <motion.div
                 className="absolute inset-0 bg-white/20"
@@ -192,7 +192,7 @@ export const HowItWorks = (): React.ReactElement => {
                 whileHover={{ x: '100%' }}
                 transition={{ duration: 0.6 }}
               />
-              <span className="relative z-10">Get Started Free</span>
+              <span className="relative z-10">Start Creating Now</span>
               <motion.div
                 animate={{ x: [0, 3, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
@@ -204,9 +204,9 @@ export const HowItWorks = (): React.ReactElement => {
                 className="absolute inset-0 rounded-xl"
                 animate={{
                   boxShadow: [
-                    '0 0 0 0 rgba(255, 153, 0, 0)',
-                    '0 0 0 10px rgba(255, 153, 0, 0.1)',
-                    '0 0 0 0 rgba(255, 153, 0, 0)',
+                    '0 0 0 0 rgba(251, 191, 36, 0)',
+                    '0 0 0 10px rgba(251, 191, 36, 0.15)',
+                    '0 0 0 0 rgba(251, 191, 36, 0)',
                   ],
                 }}
                 transition={{

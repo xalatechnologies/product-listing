@@ -28,6 +28,7 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
   const [productName, setProductName] = useState(initialData?.productName || "");
   const [productCategory, setProductCategory] = useState(initialData?.productCategory || "");
   const [brandKitId, setBrandKitId] = useState(initialData?.brandKitId || "");
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: brandKits } = api.brandKit.list.useQuery();
 
@@ -52,24 +53,51 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
     },
   });
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Project name is required";
+    } else if (name.length > 255) {
+      newErrors.name = "Project name must be 255 characters or less";
+    }
+
+    if (!productName.trim()) {
+      newErrors.productName = "Product name is required";
+    } else if (productName.length > 255) {
+      newErrors.productName = "Product name must be 255 characters or less";
+    }
+
+    if (description && description.length > 2000) {
+      newErrors.description = "Description must be 2000 characters or less";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     if (projectId) {
       updateProject.mutate({
         id: projectId,
-        name,
-        description: description || undefined,
-        productName,
-        productCategory: productCategory || undefined,
+        name: name.trim(),
+        description: description.trim() || undefined,
+        productName: productName.trim(),
+        productCategory: productCategory.trim() || undefined,
         brandKitId: brandKitId || undefined,
       });
     } else {
       createProject.mutate({
-        name,
-        description: description || undefined,
-        productName,
-        productCategory: productCategory || undefined,
+        name: name.trim(),
+        description: description.trim() || undefined,
+        productName: productName.trim(),
+        productCategory: productCategory.trim() || undefined,
         brandKitId: brandKitId || undefined,
       });
     }
@@ -81,32 +109,56 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Project Name
+          Project Name <span className="text-red-500">*</span>
         </label>
         <input
           id="name"
           type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (errors.name) {
+              setErrors((prev) => ({ ...prev, name: "" }));
+            }
+          }}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          maxLength={255}
+          className={`mt-1 block w-full rounded-md border ${
+            errors.name
+              ? "border-red-500 dark:border-red-500"
+              : "border-gray-300 dark:border-gray-600"
+          } bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
           placeholder="My Product Listing"
         />
+        {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
       </div>
 
       <div>
         <label htmlFor="productName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Product Name
+          Product Name <span className="text-red-500">*</span>
         </label>
         <input
           id="productName"
           type="text"
           value={productName}
-          onChange={(e) => setProductName(e.target.value)}
+          onChange={(e) => {
+            setProductName(e.target.value);
+            if (errors.productName) {
+              setErrors((prev) => ({ ...prev, productName: "" }));
+            }
+          }}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          maxLength={255}
+          className={`mt-1 block w-full rounded-md border ${
+            errors.productName
+              ? "border-red-500 dark:border-red-500"
+              : "border-gray-300 dark:border-gray-600"
+          } bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
           placeholder="Wireless Bluetooth Headphones"
         />
+        {errors.productName && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.productName}</p>
+        )}
       </div>
 
       <div>
@@ -130,11 +182,27 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
         <textarea
           id="description"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            if (errors.description) {
+              setErrors((prev) => ({ ...prev, description: "" }));
+            }
+          }}
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+          maxLength={2000}
+          className={`mt-1 block w-full rounded-md border ${
+            errors.description
+              ? "border-red-500 dark:border-red-500"
+              : "border-gray-300 dark:border-gray-600"
+          } bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
           placeholder="Brief description of this project..."
         />
+        {errors.description && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
+        )}
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {description.length}/2000 characters
+        </p>
       </div>
 
       <div>

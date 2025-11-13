@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import ClientProvider from "@/components/ClientProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeAwareToast } from "@/components/theme/ThemeAwareToast";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "ListingAI - AI-Powered Product Listings for Amazon, Shopify, eBay & More",
@@ -30,14 +31,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider defaultTheme="system" enableSystem>
-          <ClientProvider>
-            <TRPCReactProvider>
-              {children}
-              <ThemeAwareToast />
-            </TRPCReactProvider>
-          </ClientProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider defaultTheme="system" enableSystem>
+            <ClientProvider>
+              <TRPCReactProvider>
+                {children}
+                <ThemeAwareToast />
+              </TRPCReactProvider>
+            </ClientProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

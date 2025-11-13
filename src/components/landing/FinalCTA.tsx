@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, Clock, Zap, TrendingUp } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock, Zap, TrendingUp, Users } from "lucide-react";
 
 export const FinalCTA = (): React.ReactElement => {
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
@@ -25,7 +25,7 @@ export const FinalCTA = (): React.ReactElement => {
     return () => clearInterval(timer);
   }, []);
   return (
-    <section className="py-24 bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 relative overflow-hidden">
+    <section className="py-24 bg-gradient-to-br from-amber-600 via-yellow-600 to-amber-700 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -64,97 +64,39 @@ export const FinalCTA = (): React.ReactElement => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          {/* Urgency Badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-bold mb-6 border border-white/30"
-            animate={{
-              scale: [1, 1.05, 1],
-              boxShadow: [
-                '0 0 0 0 rgba(255, 255, 255, 0.4)',
-                '0 0 0 10px rgba(255, 255, 255, 0)',
-                '0 0 0 0 rgba(255, 255, 255, 0)',
-              ],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-            }}
-          >
-            <Zap className="w-4 h-4" />
-            <span>Limited Time Offer</span>
-          </motion.div>
-
-          {/* Headline with enhanced animation */}
+          {/* Headline - Human & friendly */}
           <motion.h2
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight"
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Ready to Transform Your E-commerce Business?
+            Ready to Sell More?
           </motion.h2>
 
-          {/* Countdown Timer */}
-          <motion.div
-            className="flex items-center justify-center gap-4 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <Clock className="w-5 h-5 text-white" />
-            <span className="text-white/90 font-medium">Special pricing ends in:</span>
-            <div className="flex gap-2">
-              {[
-                { label: 'Hours', value: timeLeft.hours },
-                { label: 'Minutes', value: timeLeft.minutes },
-                { label: 'Seconds', value: timeLeft.seconds },
-              ].map((item, index) => (
-                <div key={item.label} className="flex flex-col items-center">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={item.value}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.2 }}
-                      className="bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg min-w-[3rem] border border-white/30"
-                    >
-                      <span className="text-2xl font-bold text-white">
-                        {String(item.value).padStart(2, '0')}
-                      </span>
-                    </motion.div>
-                  </AnimatePresence>
-                  <span className="text-xs text-white/70 mt-1">{item.label}</span>
-                  {index < 2 && <span className="text-white mx-1 text-2xl font-bold">:</span>}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Subheadline */}
-          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-            Join 10,000+ sellers who've increased their sales by 47% using AI-powered
-            listings. Start your free 14-day trial today—no credit card required.
+          {/* Subheadline - More human */}
+          <p className="text-xl text-gray-900 mb-8 max-w-3xl mx-auto font-semibold">
+            Join thousands of sellers creating stunning product listings that actually convert.
+            <span className="block mt-2 text-gray-800">Start free—no credit card, no commitments.</span>
           </p>
 
-          {/* Benefits */}
+          {/* Benefits - Simplified */}
           <div className="flex flex-wrap justify-center gap-6 mb-10">
             {[
-              "14-day free trial",
-              "No credit card required",
-              "Cancel anytime",
-              "Setup in 5 minutes",
+              "Try it free for 14 days",
+              "No credit card needed",
+              "Cancel whenever you want",
+              "Set up in minutes",
             ].map((benefit, index) => (
-              <div key={index} className="flex items-center gap-2 text-white">
-                <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">{benefit}</span>
+              <div key={index} className="flex items-center gap-2 text-gray-900">
+                <CheckCircle2 className="w-5 h-5 text-gray-900" />
+                <span className="font-bold">{benefit}</span>
               </div>
             ))}
           </div>
 
-          {/* CTA Buttons - Enhanced */}
+          {/* CTA Buttons - High contrast, human messaging */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -162,15 +104,15 @@ export const FinalCTA = (): React.ReactElement => {
             >
               <Link
                 href="/auth/signin"
-                className="relative inline-flex items-center justify-center gap-2 bg-white text-orange-600 px-12 py-6 rounded-xl text-lg font-bold hover:bg-gray-50 transition-all duration-300 shadow-2xl group overflow-hidden"
+                className="relative inline-flex items-center justify-center gap-2 bg-gray-900 text-white px-12 py-6 rounded-xl text-lg font-bold hover:bg-gray-800 transition-all duration-300 shadow-2xl group overflow-hidden"
               >
                 <motion.div
-                  className="absolute inset-0 bg-orange-100"
+                  className="absolute inset-0 bg-gray-800"
                   initial={{ x: '-100%' }}
                   whileHover={{ x: '0%' }}
                   transition={{ duration: 0.3 }}
                 />
-                <span className="relative z-10">Start Your Free Trial</span>
+                <span className="relative z-10">Start Creating Now</span>
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -182,9 +124,9 @@ export const FinalCTA = (): React.ReactElement => {
                   className="absolute inset-0 rounded-xl"
                   animate={{
                     boxShadow: [
-                      '0 0 0 0 rgba(255, 255, 255, 0.7)',
-                      '0 0 0 10px rgba(255, 255, 255, 0)',
-                      '0 0 0 0 rgba(255, 255, 255, 0)',
+                      '0 0 0 0 rgba(17, 24, 39, 0.7)',
+                      '0 0 0 10px rgba(17, 24, 39, 0)',
+                      '0 0 0 0 rgba(17, 24, 39, 0)',
                     ],
                   }}
                   transition={{
@@ -200,31 +142,59 @@ export const FinalCTA = (): React.ReactElement => {
             >
               <Link
                 href="#pricing"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-10 py-6 rounded-xl text-lg font-semibold border-2 border-white/30 hover:border-white/50 transition-all duration-300"
+                className="inline-flex items-center justify-center gap-2 bg-white text-gray-900 hover:bg-gray-100 px-10 py-6 rounded-xl text-lg font-bold border-2 border-gray-900 transition-all duration-300"
               >
-                View Pricing
+                See Pricing
               </Link>
             </motion.div>
           </div>
 
-          {/* Trust Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/20">
-            {[
-              { value: "10,000+", label: "Active Sellers" },
-              { value: "500K+", label: "Listings Created" },
-              { value: "98%", label: "Satisfaction Rate" },
-              { value: "47%", label: "Avg. Sales Increase" },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl font-bold text-white mb-1">
+          {/* Trust Stats - Human & high contrast */}
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-gray-900/20"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            {([
+              { value: "Thousands", label: "Love It", icon: Users },
+              { value: "Every Day", label: "New Listings", icon: CheckCircle2 },
+              { value: "Delighted", label: "Customers", icon: TrendingUp },
+              { value: "Better", label: "Results", icon: Zap },
+            ] as const).map((stat, index) => (
+              <motion.div
+                key={index}
+                className="text-center group cursor-pointer"
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
+                whileHover={{ scale: 1.1, y: -5 }}
+              >
+                <motion.div
+                  className="flex justify-center mb-2"
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: index * 0.3,
+                  }}
+                >
+                  <stat.icon className="w-6 h-6 text-gray-900" />
+                </motion.div>
+                <motion.div
+                  className="text-3xl font-bold text-gray-900 mb-1"
+                  whileHover={{ scale: 1.1 }}
+                >
                   {stat.value}
-                </div>
-                <div className="text-sm text-white/80">
+                </motion.div>
+                <div className="text-sm text-gray-800 font-bold">
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
