@@ -4,7 +4,7 @@
  * Project detail page - view and manage a specific project
  */
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -13,7 +13,8 @@ import { ImageUpload, ImagePreview } from "@/components/ImageUpload";
 import { ExportSelector } from "@/components/ExportSelector";
 import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
-import { useState } from "react";
+import { subscribeToProjectStatus, subscribeToGeneratedImages } from "@/lib/supabase/realtime";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
@@ -25,9 +26,40 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const projectId = resolvedParams.id;
   const [showAPlusModal, setShowAPlusModal] = useState(false);
 
-  const { data: project, isLoading } = api.project.get.useQuery({ id: projectId });
+  const { data: project, isLoading, refetch: refetchProject } = api.project.get.useQuery({
+    id: projectId,
+  });
   const { data: productImages } = api.image.listProductImages.useQuery({ projectId });
-  const { data: generatedImages } = api.image.list.useQuery({ projectId });
+  const { data: generatedImages, refetch: refetchGeneratedImages } = api.image.list.useQuery({
+    projectId,
+  });
+
+  // Realtime subscriptions
+  useEffect(() => {
+    if (!projectId) return;
+
+    // Subscribe to project status changes
+    const statusChannel = subscribeToProjectStatus(projectId, (payload) => {
+      refetchProject();
+      if (payload.status === "COMPLETED") {
+        toast.success("Project processing completed!");
+      } else if (payload.status === "FAILED") {
+        toast.error("Project processing failed");
+      }
+    });
+
+    // Subscribe to generated image updates
+    const imageChannel = subscribeToGeneratedImages(projectId, (image) => {
+      refetchGeneratedImages();
+      toast.success("New image generated!");
+    });
+
+    // Cleanup subscriptions on unmount
+    return () => {
+      statusChannel.unsubscribe();
+      imageChannel.unsubscribe();
+    };
+  }, [projectId, refetchProject, refetchGeneratedImages]);
 
   const generateImage = api.image.generate.useMutation({
     onSuccess: () => {

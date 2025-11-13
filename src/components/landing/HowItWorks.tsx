@@ -170,7 +170,7 @@ export const HowItWorks = (): React.ReactElement => {
           ))}
         </div>
 
-        {/* CTA */}
+        {/* CTA - Enhanced */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -178,13 +178,44 @@ export const HowItWorks = (): React.ReactElement => {
           transition={{ duration: 0.6, delay: 0.8 }}
           className="mt-16 text-center"
         >
-          <Link
-            href="/auth/signin"
-            className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
           >
-            Get Started Free
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+            <Link
+              href="/auth/signin"
+              className="relative inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white px-10 py-5 rounded-xl text-lg font-bold shadow-2xl hover:shadow-orange-600/50 transition-all duration-300 overflow-hidden group"
+            >
+              <motion.div
+                className="absolute inset-0 bg-white/20"
+                initial={{ x: '-100%', skewX: -20 }}
+                whileHover={{ x: '100%' }}
+                transition={{ duration: 0.6 }}
+              />
+              <span className="relative z-10">Get Started Free</span>
+              <motion.div
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="relative z-10"
+              >
+                <ArrowRight className="w-5 h-5" />
+              </motion.div>
+              <motion.div
+                className="absolute inset-0 rounded-xl"
+                animate={{
+                  boxShadow: [
+                    '0 0 0 0 rgba(255, 153, 0, 0)',
+                    '0 0 0 10px rgba(255, 153, 0, 0.1)',
+                    '0 0 0 0 rgba(255, 153, 0, 0)',
+                  ],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                }}
+              />
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
     </section>

@@ -78,12 +78,12 @@ export function subscribeToGeneratedImages(
 /**
  * Subscribe to credit balance changes for the current user
  * @param userId - User ID to watch
- * @param callback - Callback function when credits change
+ * @param callback - Callback function when credits change (called with true to indicate change)
  * @returns Realtime channel
  */
 export function subscribeToCredits(
   userId: string,
-  callback: (balance: number) => void,
+  callback: () => void,
 ): RealtimeChannel {
   const channel = supabase
     .channel(`credits:${userId}`)
@@ -95,11 +95,9 @@ export function subscribeToCredits(
         table: "CreditTransaction",
         filter: `userId=eq.${userId}`,
       },
-      async () => {
-        // Calculate new balance
-        // This would typically be done via a database function or view
-        // For now, we'll just notify that credits changed
-        callback(0); // Placeholder - implement balance calculation
+      () => {
+        // Notify that credits changed - component should refetch balance
+        callback();
       },
     )
     .subscribe();
