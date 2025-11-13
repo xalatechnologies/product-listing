@@ -3,12 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/landing/Navigation";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { PlatformsSection } from "@/components/landing/PlatformsSection";
-import { FeaturesSection } from "@/components/landing/FeaturesSection";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { CTASection } from "@/components/landing/CTASection";
+import { AmazonHero } from "@/components/landing/AmazonHero";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { BusinessFeatures } from "@/components/landing/BusinessFeatures";
+import { CaseStudies } from "@/components/landing/CaseStudies";
+import { ProfessionalPricing } from "@/components/landing/ProfessionalPricing";
+import { FAQ } from "@/components/landing/FAQ";
+import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
 export const dynamic = "force-dynamic";
@@ -35,12 +36,13 @@ export default async function Page() {
     <div className="min-h-screen flex flex-col">
       <Navigation />
       <main className="flex-1">
-        <HeroSection />
-        <PlatformsSection />
-        <FeaturesSection />
-        <PricingSection />
-        <TestimonialsSection />
-        <CTASection />
+        <AmazonHero />
+        <HowItWorks />
+        <BusinessFeatures />
+        <CaseStudies />
+        <ProfessionalPricing />
+        <FAQ />
+        <FinalCTA />
       </main>
       <Footer />
     </div>

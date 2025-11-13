@@ -210,10 +210,8 @@ export const aPlusRouter = createTRPCRouter({
       });
 
       if (!aPlusContent) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "A+ content not found for this project",
-        });
+        // Return null instead of throwing error - allows UI to show "generate" button
+        return null;
       }
 
       return {

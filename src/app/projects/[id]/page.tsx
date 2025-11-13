@@ -8,10 +8,11 @@ import { use } from "react";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Edit, Trash2, Download, Sparkles } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Download, Sparkles, FileText, Zap, X } from "lucide-react";
 import { ImageUpload, ImagePreview } from "@/components/ImageUpload";
 import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
+import { useState } from "react";
 
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
@@ -21,6 +22,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
   const projectId = resolvedParams.id;
+  const [showAPlusModal, setShowAPlusModal] = useState(false);
 
   const { data: project, isLoading } = api.project.get.useQuery({ id: projectId });
   const { data: productImages } = api.image.listProductImages.useQuery({ projectId });
@@ -36,6 +38,19 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
     },
     onError: (error) => {
       toast.error(error.message || "Failed to generate image");
+    },
+  });
+
+  const generateAPlus = api.aPlus.generate.useMutation({
+    onSuccess: () => {
+      toast.success("A+ content generation started! Redirecting to A+ editor...");
+      setShowAPlusModal(false);
+      setTimeout(() => {
+        router.push(`/projects/${projectId}/aplus`);
+      }, 1500);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to generate A+ content");
     },
   });
 
@@ -305,6 +320,107 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
         )}
       </div>
+
+      {/* A+ Content Section */}
+      <div className="mb-12">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            A+ Content
+          </h2>
+          <Link
+            href={`/projects/${projectId}/aplus`}
+            className="inline-flex items-center gap-2 rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+          >
+            <FileText className="h-4 w-4" />
+            Manage A+ Content
+          </Link>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Create professional Amazon A+ content modules for your product listing.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowAPlusModal(true)}
+              className="inline-flex items-center gap-2 rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+            >
+              <Zap className="h-4 w-4" />
+              Generate A+ Content
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* A+ Content Generation Modal */}
+      {showAPlusModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Generate A+ Content
+              </h3>
+              <button
+                onClick={() => setShowAPlusModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Choose the type of A+ content you want to generate:
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    generateAPlus.mutate({
+                      projectId,
+                      isPremium: false,
+                    });
+                  }}
+                  disabled={generateAPlus.isPending}
+                  className="w-full text-left p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        Standard A+ Content
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Includes standard modules (1-6) with professional layouts
+                      </p>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    generateAPlus.mutate({
+                      projectId,
+                      isPremium: true,
+                    });
+                  }}
+                  disabled={generateAPlus.isPending}
+                  className="w-full text-left p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        Premium A+ Content
+                      </h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Includes premium modules with advanced layouts and features
+                      </p>
+                    </div>
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                      Premium
+                    </span>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Project Info */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
