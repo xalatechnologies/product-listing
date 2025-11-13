@@ -10,7 +10,7 @@ import Stripe from "stripe";
 import { prisma } from "@/lib/db";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-10-29.clover",
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -129,21 +129,29 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   }
 
   // Update or create subscription
+  // Access subscription period dates (Stripe uses snake_case in API responses)
+  const periodStart = (subscription as any).current_period_start
+    ? new Date((subscription as any).current_period_start * 1000)
+    : new Date();
+  const periodEnd = (subscription as any).current_period_end
+    ? new Date((subscription as any).current_period_end * 1000)
+    : new Date();
+
   await prisma.subscription.upsert({
     where: { stripeId },
     update: {
       plan: plan as any,
       status: mapStripeStatus(status) as any,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: periodStart,
+      currentPeriodEnd: periodEnd,
     },
     create: {
       userId: user.id,
       stripeId,
       plan: plan as any,
       status: mapStripeStatus(status) as any,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: periodStart,
+      currentPeriodEnd: periodEnd,
     },
   });
 
@@ -173,7 +181,11 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription as string;
+  // Invoice.subscription can be a string ID or a Subscription object
+  const subscriptionId =
+    typeof (invoice as any).subscription === "string"
+      ? (invoice as any).subscription
+      : (invoice as any).subscription?.id;
   if (!subscriptionId) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);

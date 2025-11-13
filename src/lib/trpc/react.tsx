@@ -7,6 +7,8 @@ import {
   createWSClient,
   wsLink,
   splitLink,
+  createTRPCClient,
+  type CreateTRPCClient,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
@@ -42,8 +44,8 @@ const wsClient =
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  const [trpcClient] = useState(() =>
-    api.createClient({
+  const [trpcClient] = useState<CreateTRPCClient<AppRouter>>(() => {
+    return createTRPCClient<AppRouter>({
       links: [
         loggerLink({
           enabled: (op) =>
@@ -60,19 +62,19 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             transformer: SuperJSON,
             url: getBaseUrl() + "/api/trpc",
             headers: () => {
-              const headers = new Headers();
-              headers.set("x-trpc-source", "nextjs-react");
-              return headers;
+              return {
+                "x-trpc-source": "nextjs-react",
+              };
             },
           }),
         }),
       ],
-    }),
-  );
+    });
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
-      <api.Provider client={trpcClient} queryClient={queryClient}>
+      <api.Provider client={trpcClient as any} queryClient={queryClient}>
         {props.children}
       </api.Provider>
     </QueryClientProvider>

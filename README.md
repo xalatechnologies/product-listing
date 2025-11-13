@@ -135,6 +135,40 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000) to see your app.
 
+## 🔐 Environment Variables
+
+This project requires the following environment variables. Copy `.env.example` to `.env` and configure them:
+
+### Database
+- `DATABASE_URL` - PostgreSQL connection string (e.g., from Supabase)
+- `DIRECT_URL` - Direct PostgreSQL connection (for migrations, same as DATABASE_URL for Supabase)
+
+### Authentication (NextAuth)
+- `NEXTAUTH_SECRET` - Secret key for session encryption (generate with `openssl rand -base64 32`)
+- `NEXTAUTH_URL` - Your application URL (development: `http://localhost:3000`)
+
+### Supabase
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous/public key
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key (keep secret)
+
+### Stripe (Billing & Subscriptions)
+- `STRIPE_SECRET_KEY` - Stripe secret key (starts with `sk_`)
+- `STRIPE_PUBLISHABLE_KEY` - Stripe publishable key (starts with `pk_`)
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret (starts with `whsec_`)
+- `STRIPE_PRICE_STARTER` - Stripe price ID for Starter plan
+- `STRIPE_PRICE_PROFESSIONAL` - Stripe price ID for Professional plan
+- `STRIPE_PRICE_AGENCY` - Stripe price ID for Agency plan
+
+### AI Services
+- `OPENAI_API_KEY` - OpenAI API key (if using OpenAI for AI features)
+
+### Inngest (Background Jobs)
+- `INNGEST_EVENT_KEY` - Inngest event key
+- `INNGEST_SIGNING_KEY` - Inngest signing key
+
+> **Note**: The `.env` file is already in `.gitignore` and will not be committed to version control.
+
 ## 📁 Project Structure
 
 - `app/` - Next.js app router pages and API routes
