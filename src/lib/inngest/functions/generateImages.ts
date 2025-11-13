@@ -23,23 +23,39 @@ export const generateListingImagesFn = inngest.createFunction(
     try {
       // Process image generation based on type
       await step.run("Generate image", async () => {
-        // TODO: Implement actual image generation logic
-        // This will call the appropriate generator based on imageType
-        // For now, we'll just simulate the process
-        
+        // Get project with product images
+        const project = await prisma.project.findUnique({
+          where: { id: projectId },
+          include: {
+            productImages: {
+              orderBy: { order: "asc" },
+              take: 1, // Use first product image
+            },
+          },
+        });
+
+        if (!project) {
+          throw new Error("Project not found");
+        }
+
+        if (!project.productImages || project.productImages.length === 0) {
+          throw new Error("Project has no product images");
+        }
+
+        const productImageUrl = project.productImages[0]!.url;
+
         switch (imageType) {
-          case ImageType.MAIN_IMAGE:
-            // await generateMainImage(projectId, userId);
-            console.log(`Generating main image for project ${projectId}`);
+          case ImageType.MAIN_IMAGE: {
+            const { generateMainImage } = await import("@/lib/ai/generators/mainImage");
+            await generateMainImage(productImageUrl, projectId, userId);
             break;
+          }
           case ImageType.INFOGRAPHIC:
-            // await generateInfographic(projectId, userId, style);
-            console.log(`Generating infographic for project ${projectId} with style ${style}`);
-            break;
+            // TODO: Implement infographic generation
+            throw new Error("Infographic generation not yet implemented");
           case ImageType.LIFESTYLE:
-            // await generateLifestyleImage(projectId, userId, style);
-            console.log(`Generating lifestyle image for project ${projectId} with style ${style}`);
-            break;
+            // TODO: Implement lifestyle image generation
+            throw new Error("Lifestyle image generation not yet implemented");
           default:
             throw new Error(`Unknown image type: ${imageType}`);
         }
