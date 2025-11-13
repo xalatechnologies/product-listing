@@ -4,15 +4,24 @@
  * A+ Content page - manage and preview A+ content for a project
  */
 
-import { use } from "react";
+import { use, useState } from "react";
+import dynamic from "next/dynamic";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Zap, FileText, X } from "lucide-react";
-import { APlusEditor } from "@/components/APlusEditor";
-import { APlusPreview } from "@/components/APlusPreview";
 import { toast } from "react-toastify";
-import { useState } from "react";
+
+// Dynamic imports for code splitting
+const APlusEditor = dynamic(() => import("@/components/APlusEditor").then((mod) => ({ default: mod.APlusEditor })), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-64" />,
+  ssr: false,
+});
+
+const APlusPreview = dynamic(() => import("@/components/APlusPreview").then((mod) => ({ default: mod.APlusPreview })), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-64" />,
+  ssr: false,
+});
 
 interface APlusPageProps {
   params: Promise<{ id: string }>;

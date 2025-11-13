@@ -36,8 +36,12 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const utils = api.useUtils();
+
   const createBrandKit = api.brandKit.create.useMutation({
     onSuccess: (brandKit) => {
+      // Invalidate brand kit list
+      void utils.brandKit.list.invalidate();
       toast.success("Brand kit created successfully!");
       router.push(`/brand-kits/${brandKit.id}`);
       onSuccess?.();
@@ -48,7 +52,10 @@ export function BrandKitForm({ brandKitId, initialData, onSuccess }: BrandKitFor
   });
 
   const updateBrandKit = api.brandKit.update.useMutation({
-    onSuccess: () => {
+    onSuccess: (updatedBrandKit) => {
+      // Invalidate brand kit list and specific brand kit
+      void utils.brandKit.list.invalidate();
+      void utils.brandKit.get.invalidate({ id: updatedBrandKit.id });
       toast.success("Brand kit updated successfully!");
       onSuccess?.();
     },

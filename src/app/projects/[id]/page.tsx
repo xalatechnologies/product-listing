@@ -5,16 +5,22 @@
  */
 
 import { use, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Edit, Trash2, Download, Sparkles, FileText, Zap, X } from "lucide-react";
 import { ImageUpload, ImagePreview } from "@/components/ImageUpload";
-import { ExportSelector } from "@/components/ExportSelector";
 import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
 import { subscribeToProjectStatus, subscribeToGeneratedImages } from "@/lib/supabase/realtime";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+
+// Dynamic import for code splitting
+const ExportSelector = dynamic(() => import("@/components/ExportSelector").then((mod) => ({ default: mod.ExportSelector })), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-32" />,
+  ssr: false,
+});
 
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;

@@ -6,7 +6,13 @@
  * Displays subscription plans for users to choose from
  */
 
-import { SubscriptionPlans } from "@/components/SubscriptionPlans";
+import dynamic from "next/dynamic";
+
+// Dynamic import for code splitting
+const SubscriptionPlans = dynamic(() => import("@/components/SubscriptionPlans").then((mod) => ({ default: mod.SubscriptionPlans })), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-64" />,
+  ssr: false,
+});
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 

@@ -5,6 +5,7 @@
  */
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { api } from "@/lib/trpc/react";
 import { toast } from "react-toastify";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
@@ -26,7 +27,13 @@ export function ImageUpload({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const uploadImage = api.image.upload.useMutation();
+  const utils = api.useUtils();
+  const uploadImage = api.image.upload.useMutation({
+    onSuccess: () => {
+      // Invalidate product images list
+      void utils.image.listProductImages.invalidate({ projectId });
+    },
+  });
 
   const handleFileSelect = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -173,8 +180,15 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ images, onDelete, deletable = true }: ImagePreviewProps) {
+  const utils = api.useUtils();
   const deleteImage = api.image.deleteProductImage.useMutation({
     onSuccess: () => {
+      // Invalidate product images list (need projectId from images)
+      if (images.length > 0) {
+        // Extract projectId from first image URL or pass as prop
+        // For now, invalidate all image queries
+        void utils.image.listProductImages.invalidate();
+      }
       toast.success("Image deleted");
       onDelete?.("");
     },
@@ -196,16 +210,23 @@ export function ImagePreview({ images, onDelete, deletable = true }: ImagePrevie
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {images.map((image) => (
         <div key={image.id} className="relative group">
-          <img
-            src={image.url}
-            alt="Product"
-            className="w-full h-48 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
-          />
+          <div className="relative w-full h-48 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <Image
+              src={image.url}
+              alt="Product"
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover"
+              loading="lazy"
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+            />
+          </div>
           {deletable && (
             <button
               onClick={() => deleteImage.mutate({ id: image.id })}
               disabled={deleteImage.isPending}
-              className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+              className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 z-10"
             >
               <X className="h-4 w-4" />
             </button>

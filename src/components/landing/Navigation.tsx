@@ -51,7 +51,7 @@ export const Navigation = (): React.ReactElement => {
               href="/"
               className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-600 via-blue-600 to-green-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span>ListingAI</span>
@@ -63,7 +63,7 @@ export const Navigation = (): React.ReactElement => {
                 <button
                   key={link.href}
                   onClick={() => scrollToSection(link.href)}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+                  className="text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 font-medium transition-colors"
                 >
                   {link.label}
                 </button>
@@ -74,13 +74,13 @@ export const Navigation = (): React.ReactElement => {
             <div className="hidden md:flex items-center gap-4">
               <Link
                 href="/auth/signin"
-                className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors"
+                className="text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 font-medium transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 href="/auth/signin"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 hover:from-orange-700 hover:via-blue-700 hover:to-green-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white rounded-lg px-6 py-3 font-bold shadow-lg transition-all duration-300 hover:scale-105"
               >
                 Get Started
               </Link>
@@ -89,7 +89,7 @@ export const Navigation = (): React.ReactElement => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="md:hidden p-2 text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
@@ -117,7 +117,7 @@ export const Navigation = (): React.ReactElement => {
                 <button
                   key={link.href}
                   onClick={() => scrollToSection(link.href)}
-                  className="block w-full text-left text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  className="block w-full text-left text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                 >
                   {link.label}
                 </button>
@@ -125,14 +125,14 @@ export const Navigation = (): React.ReactElement => {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-4">
                 <Link
                   href="/auth/signin"
-                  className="block w-full text-center text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  className="block w-full text-center text-lg font-medium text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/auth/signin"
-                  className="block w-full text-center bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 hover:from-orange-700 hover:via-blue-700 hover:to-green-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300"
+                  className="block w-full text-center bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 text-white rounded-lg px-6 py-3 font-bold shadow-lg transition-all duration-300"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Get Started

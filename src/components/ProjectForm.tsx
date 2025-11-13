@@ -32,8 +32,12 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
 
   const { data: brandKits } = api.brandKit.list.useQuery();
 
+  const utils = api.useUtils();
+
   const createProject = api.project.create.useMutation({
     onSuccess: (project) => {
+      // Invalidate and refetch project list
+      void utils.project.list.invalidate();
       toast.success("Project created successfully!");
       router.push(`/projects/${project.id}`);
       onSuccess?.();
@@ -44,7 +48,10 @@ export function ProjectForm({ projectId, initialData, onSuccess }: ProjectFormPr
   });
 
   const updateProject = api.project.update.useMutation({
-    onSuccess: () => {
+    onSuccess: (updatedProject) => {
+      // Invalidate project list and specific project
+      void utils.project.list.invalidate();
+      void utils.project.get.invalidate({ id: updatedProject.id });
       toast.success("Project updated successfully!");
       onSuccess?.();
     },
