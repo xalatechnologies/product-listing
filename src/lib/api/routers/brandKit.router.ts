@@ -10,6 +10,7 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 const brandKitSchema = z.object({
@@ -34,8 +35,15 @@ export const brandKitRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement brand kit creation after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      const brandKit = await ctx.db.brandKit.create({
+        data: {
+          userId,
+          ...input,
+          isDefault: false,
+        },
+      });
+
+      return brandKit;
     }),
 
   /**
@@ -44,8 +52,12 @@ export const brandKitRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    // TODO: Implement brand kit listing after Prisma client is generated
-    throw new Error("Not implemented: Prisma client needs to be generated");
+    const brandKits = await ctx.db.brandKit.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return brandKits;
   }),
 
   /**
@@ -56,8 +68,21 @@ export const brandKitRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement brand kit retrieval after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      const brandKit = await ctx.db.brandKit.findFirst({
+        where: {
+          id: input.id,
+          userId,
+        },
+      });
+
+      if (!brandKit) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Brand kit not found",
+        });
+      }
+
+      return brandKit;
     }),
 
   /**
@@ -69,8 +94,24 @@ export const brandKitRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       const { id, ...data } = input;
 
-      // TODO: Implement brand kit update after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify brand kit belongs to user
+      const existing = await ctx.db.brandKit.findFirst({
+        where: { id, userId },
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Brand kit not found",
+        });
+      }
+
+      const brandKit = await ctx.db.brandKit.update({
+        where: { id },
+        data,
+      });
+
+      return brandKit;
     }),
 
   /**
@@ -81,8 +122,36 @@ export const brandKitRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement brand kit deletion after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify brand kit belongs to user
+      const existing = await ctx.db.brandKit.findFirst({
+        where: { id: input.id, userId },
+        include: {
+          projects: {
+            select: { id: true },
+          },
+        },
+      });
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Brand kit not found",
+        });
+      }
+
+      // Optional: Check if brand kit is used by projects
+      // For now, we allow deletion even if in use (cascade will handle projects)
+
+      // TODO: Delete logo file from Supabase Storage
+      // if (existing.logoUrl) {
+      //   await deleteFile("brand-kits", extractPathFromUrl(existing.logoUrl));
+      // }
+
+      await ctx.db.brandKit.delete({
+        where: { id: input.id },
+      });
+
+      return { success: true };
     }),
 
   /**
@@ -93,8 +162,31 @@ export const brandKitRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement set default brand kit after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify brand kit belongs to user
+      const brandKit = await ctx.db.brandKit.findFirst({
+        where: { id: input.id, userId },
+      });
+
+      if (!brandKit) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Brand kit not found",
+        });
+      }
+
+      // Set all user's brand kits to isDefault = false
+      await ctx.db.brandKit.updateMany({
+        where: { userId },
+        data: { isDefault: false },
+      });
+
+      // Set selected brand kit to isDefault = true
+      const updated = await ctx.db.brandKit.update({
+        where: { id: input.id },
+        data: { isDefault: true },
+      });
+
+      return updated;
     }),
 });
 
