@@ -32,19 +32,23 @@ export function ImageUpload({
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files).slice(0, maxFiles);
+    setUploading(true);
 
-    for (const file of fileArray) {
-      if (!acceptedTypes.includes(file.type)) {
-        toast.error(`${file.name} is not a supported image type`);
-        continue;
+    try {
+      for (const file of fileArray) {
+        if (!acceptedTypes.includes(file.type)) {
+          toast.error(`${file.name} is not a supported image type`);
+          continue;
+        }
+
+        await uploadFile(file);
       }
-
-      await uploadFile(file);
+    } finally {
+      setUploading(false);
     }
   };
 
   const uploadFile = async (file: File) => {
-    setUploading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -78,8 +82,7 @@ export function ImageUpload({
     } catch (error) {
       console.error("Upload error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to upload image");
-    } finally {
-      setUploading(false);
+      throw error; // Re-throw to allow handleFileSelect to handle it
     }
   };
 
