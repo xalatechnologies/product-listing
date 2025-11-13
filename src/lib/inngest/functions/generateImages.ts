@@ -50,9 +50,12 @@ export const generateListingImagesFn = inngest.createFunction(
             await generateMainImage(productImageUrl, projectId, userId);
             break;
           }
-          case ImageType.INFOGRAPHIC:
-            // TODO: Implement infographic generation
-            throw new Error("Infographic generation not yet implemented");
+          case ImageType.INFOGRAPHIC: {
+            const { generateInfographic } = await import("@/lib/ai/generators/infographic");
+            // style can be used as templateId if provided, otherwise random template is used
+            await generateInfographic(projectId, userId, style, style);
+            break;
+          }
           case ImageType.LIFESTYLE:
             // TODO: Implement lifestyle image generation
             throw new Error("Lifestyle image generation not yet implemented");

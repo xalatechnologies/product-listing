@@ -198,23 +198,42 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Upload product images above, then generate your listing images
             </p>
-            <button
-              onClick={() => {
-                if (!productImages || productImages.length === 0) {
-                  toast.error("Please upload at least one product image first");
-                  return;
-                }
-                generateImage.mutate({
-                  projectId,
-                  type: ImageType.MAIN_IMAGE,
-                });
-              }}
-              disabled={generateImage.isPending || !productImages || productImages.length === 0}
-              className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Sparkles className="h-4 w-4" />
-              {generateImage.isPending ? "Generating..." : "Generate Main Image"}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.MAIN_IMAGE,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Generate Main Image"}
+              </button>
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateImage.mutate({
+                    projectId,
+                    type: ImageType.INFOGRAPHIC,
+                  });
+                }}
+                disabled={generateImage.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Sparkles className="h-4 w-4" />
+                {generateImage.isPending ? "Generating..." : "Generate Infographic"}
+              </button>
+            </div>
           </div>
         )}
       </div>
