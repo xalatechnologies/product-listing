@@ -13,6 +13,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { analyzeProductForAPlus } from "@/lib/aplus/contentAnalysis";
 import { getRandomTemplateForModule, applyBrandKitToTemplate } from "@/lib/aplus/templates";
 import { getStandardModules } from "@/lib/aplus/moduleSpecs";
+import { exportAPlusContent } from "@/lib/aplus/export";
 
 const aPlusModuleSchema = z.object({
   type: z.string(),
@@ -260,20 +261,18 @@ export const aPlusRouter = createTRPCRouter({
         });
       }
 
-      // TODO: Implement actual image rendering and ZIP generation
-      // For now, return a placeholder response
-      // This will be implemented in Story 15 (A+ Content Generator - Rendering)
-      throw new TRPCError({
-        code: "NOT_IMPLEMENTED",
-        message: "A+ content export (image rendering) will be implemented in Story 15",
+      // Export A+ content as images
+      const exportResult = await exportAPlusContent({
+        projectId: input.projectId,
+        userId,
+        format: input.format,
       });
 
-      // Future implementation:
-      // 1. Render each module as image using renderer
-      // 2. Generate images at Amazon-required sizes (970px width)
-      // 3. Create ZIP file with all module images
-      // 4. Upload ZIP to Supabase Storage (exports bucket)
-      // 5. Return signed download URL
+      return {
+        downloadUrl: exportResult.downloadUrl,
+        fileSize: exportResult.fileSize,
+        moduleCount: exportResult.moduleCount,
+      };
     }),
 });
 

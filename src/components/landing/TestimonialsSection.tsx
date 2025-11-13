@@ -88,7 +88,7 @@ export const TestimonialsSection = (): React.ReactElement => {
       role: "CEO",
       company: "Eco Products Co",
       content:
-        "This platform revolutionized how we create Amazon listings. We went from spending 2 hours per listing to just 5 minutes. The AI-generated images are stunning and our conversion rate increased by 47%.",
+        "This platform revolutionized how we create product listings across Amazon and Shopify. We went from spending 2 hours per listing to just 5 minutes. The AI-generated images are stunning and our conversion rate increased by 47%.",
       rating: 5,
       image: "SJ",
     },
@@ -106,7 +106,7 @@ export const TestimonialsSection = (): React.ReactElement => {
       role: "Founder",
       company: "Home Essentials",
       content:
-        "As a solo entrepreneur, this tool is a game-changer. I can compete with big brands without hiring a design team. The ROI has been phenomenal - my listings rank higher and sell more.",
+        "As a solo entrepreneur selling on Amazon, eBay, and Etsy, this tool is a game-changer. I can compete with big brands without hiring a design team. The ROI has been phenomenal across all platforms.",
       rating: 5,
       image: "ER",
     },
@@ -155,13 +155,13 @@ export const TestimonialsSection = (): React.ReactElement => {
         >
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Loved by
-            <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 bg-clip-text text-transparent">
               Thousands of Sellers
             </span>
           </h2>
           <p className="max-w-2xl mx-auto text-xl text-gray-600 dark:text-gray-300">
-            Join successful Amazon sellers who are already using our platform to
-            scale their business.
+            Join successful e-commerce sellers who are already using our platform to
+            scale their business across multiple platforms.
           </p>
         </motion.div>
 
@@ -187,7 +187,7 @@ export const TestimonialsSection = (): React.ReactElement => {
               transition={{ duration: 0.4, delay: 0.1 * index }}
               className="text-center"
             >
-              <div className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+              <div className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </div>
               <div className="text-gray-600 dark:text-gray-400 font-medium">

@@ -9,7 +9,7 @@ export const CTASection = (): React.ReactElement => {
   return (
     <section className="relative py-24 overflow-hidden">
       {/* Gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600" />
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-blue-600 to-green-600" />
 
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -60,13 +60,14 @@ export const CTASection = (): React.ReactElement => {
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
             Ready to Transform Your
             <br />
-            Amazon Business?
+            E-commerce Business?
           </h2>
 
           {/* Subheadline */}
           <p className="max-w-2xl mx-auto text-xl text-white/90 leading-relaxed">
-            Join thousands of successful sellers who are already using AI to
-            create professional product listings in minutes, not hours.
+            Join thousands of successful sellers across Amazon, Shopify, eBay, and
+            Etsy who are using AI to create professional product listings in minutes,
+            not hours.
           </p>
 
           {/* CTA Buttons */}

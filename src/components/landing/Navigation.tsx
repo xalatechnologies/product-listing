@@ -51,7 +51,7 @@ export const Navigation = (): React.ReactElement => {
               href="/"
               className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-orange-600 via-blue-600 to-green-600 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span>ListingAI</span>
@@ -80,7 +80,7 @@ export const Navigation = (): React.ReactElement => {
               </Link>
               <Link
                 href="/auth/signin"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 hover:from-orange-700 hover:via-blue-700 hover:to-green-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300 hover:scale-105"
               >
                 Get Started
               </Link>
@@ -132,7 +132,7 @@ export const Navigation = (): React.ReactElement => {
                 </Link>
                 <Link
                   href="/auth/signin"
-                  className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300"
+                  className="block w-full text-center bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 hover:from-orange-700 hover:via-blue-700 hover:to-green-700 text-white rounded-lg px-6 py-3 font-semibold shadow-lg transition-all duration-300"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Get Started

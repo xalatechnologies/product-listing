@@ -4,38 +4,14 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles, Zap, Target } from "lucide-react";
+import { AnimatedBackground } from "./AnimatedBackground";
+import { ShimmerText } from "./ShimmerText";
 
 export const HeroSection = (): React.ReactElement => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-900/20">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-20 left-10 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1,
-          }}
-        />
-      </div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Magic-UI style animated background */}
+      <AnimatedBackground />
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 sm:px-8 lg:px-12">
@@ -45,27 +21,24 @@ export const HeroSection = (): React.ReactElement => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/30 rounded-full text-orange-700 dark:text-orange-300 text-sm font-medium"
           >
             <Sparkles className="w-4 h-4" />
             AI-Powered Multi-Platform Listing Generator
           </motion.div>
 
           {/* Headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight"
-          >
-            Create Stunning
-            <br />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              E-commerce Listings
-            </span>
-            <br />
-            in Minutes
-          </motion.h1>
+          <ShimmerText>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-tight">
+              Create Stunning
+              <br />
+              <span className="bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 bg-clip-text text-transparent">
+                E-commerce Listings
+              </span>
+              <br />
+              in Minutes
+            </h1>
+          </ShimmerText>
 
           {/* Subheadline */}
           <motion.p
@@ -87,15 +60,15 @@ export const HeroSection = (): React.ReactElement => {
             className="flex flex-wrap items-center justify-center gap-6 text-sm sm:text-base text-gray-700 dark:text-gray-300"
           >
             <div className="flex items-center gap-2">
-              <Zap className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Zap className="w-5 h-5 text-orange-600 dark:text-orange-400" />
               <span>Generate in seconds</span>
             </div>
             <div className="flex items-center gap-2">
-              <Target className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              <span>Brand-consistent</span>
+              <Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span>Multi-platform ready</span>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-pink-600 dark:text-pink-400" />
+              <Sparkles className="w-5 h-5 text-green-600 dark:text-green-400" />
               <span>AI-optimized content</span>
             </div>
           </motion.div>
@@ -109,7 +82,7 @@ export const HeroSection = (): React.ReactElement => {
           >
             <Link
               href="/auth/signin"
-              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl px-8 py-4 text-lg font-semibold shadow-2xl shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40 hover:scale-105"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 via-blue-600 to-green-600 hover:from-orange-700 hover:via-blue-700 hover:to-green-700 text-white rounded-xl px-8 py-4 text-lg font-semibold shadow-2xl shadow-orange-500/25 transition-all duration-300 hover:shadow-orange-500/40 hover:scale-105"
             >
               Start Free Trial
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

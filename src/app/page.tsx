@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Navigation } from "@/components/landing/Navigation";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { PlatformsSection } from "@/components/landing/PlatformsSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -35,6 +36,7 @@ export default async function Page() {
       <Navigation />
       <main className="flex-1">
         <HeroSection />
+        <PlatformsSection />
         <FeaturesSection />
         <PricingSection />
         <TestimonialsSection />
