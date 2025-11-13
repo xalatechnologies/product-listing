@@ -48,7 +48,7 @@ export const HeroSection = (): React.ReactElement => {
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium"
           >
             <Sparkles className="w-4 h-4" />
-            AI-Powered Product Listing Generator
+            AI-Powered Multi-Platform Listing Generator
           </motion.div>
 
           {/* Headline */}
@@ -61,7 +61,7 @@ export const HeroSection = (): React.ReactElement => {
             Create Stunning
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Amazon Listings
+              E-commerce Listings
             </span>
             <br />
             in Minutes
@@ -75,8 +75,8 @@ export const HeroSection = (): React.ReactElement => {
             className="max-w-3xl mx-auto text-xl sm:text-2xl text-gray-600 dark:text-gray-300 leading-relaxed"
           >
             Generate professional product images, A+ content, and brand-consistent
-            listings with the power of AI. Boost your sales with optimized visuals
-            and copy.
+            listings for Amazon, Shopify, eBay, Etsy, and more. Boost your sales
+            across all platforms with AI-optimized visuals.
           </motion.p>
 
           {/* Feature highlights */}
@@ -122,12 +122,37 @@ export const HeroSection = (): React.ReactElement => {
             </Link>
           </motion.div>
 
+          {/* Platform badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1 }}
+            className="pt-8"
+          >
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Works with your favorite platforms
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-6">
+              {["Amazon", "Shopify", "eBay", "Etsy", "Walmart", "TikTok Shop"].map((platform, index) => (
+                <motion.div
+                  key={platform}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1 + index * 0.1 }}
+                  className="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {platform}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
           {/* Trust indicators */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1 }}
-            className="pt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400"
+            transition={{ duration: 0.6, delay: 1.6 }}
+            className="pt-8 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500 dark:text-gray-400"
           >
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />

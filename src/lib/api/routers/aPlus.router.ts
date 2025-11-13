@@ -8,7 +8,11 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { analyzeProductForAPlus } from "@/lib/aplus/contentAnalysis";
+import { getRandomTemplateForModule, applyBrandKitToTemplate } from "@/lib/aplus/templates";
+import { getStandardModules } from "@/lib/aplus/moduleSpecs";
 
 const aPlusModuleSchema = z.object({
   type: z.string(),
@@ -35,12 +39,100 @@ export const aPlusRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement A+ content generation after Prisma client is generated
-      // 1. Analyze product data using GPT-5
-      // 2. Generate module layouts
-      // 3. Render images
-      // 4. Store APlusContent record
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+        include: {
+          brandKit: true,
+          productImages: {
+            orderBy: { order: "asc" },
+          },
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // TODO: Check user has enough credits (A+ costs more)
+      // const user = await ctx.db.user.findUnique({ where: { id: userId } });
+      // const creditsRequired = input.isPremium ? 50 : 20;
+      // if (!user || user.credits < creditsRequired) {
+      //   throw new TRPCError({
+      //     code: "PAYMENT_REQUIRED",
+      //     message: "Insufficient credits for A+ content generation",
+      //   });
+      // }
+
+      // Step 1: Analyze product data using GPT-5
+      const analysis = await analyzeProductForAPlus({
+        productName: project.productName,
+        description: project.description || undefined,
+        category: project.productCategory || undefined,
+        productImages: project.productImages,
+      });
+
+      // Step 2: Generate module layouts
+      const availableModules = input.isPremium
+        ? getStandardModules() // For now, use standard modules (premium modules can be added later)
+        : getStandardModules();
+
+      // Select modules (4-6 modules)
+      const selectedModules = availableModules.slice(0, Math.min(6, Math.max(4, analysis.modules.length)));
+
+      const generatedModules = selectedModules.map((moduleSpec, index) => {
+        const moduleContent = analysis.modules[index] || analysis.modules[0]!;
+        const template = getRandomTemplateForModule(moduleSpec.id);
+
+        // Apply brand kit if available
+        const finalTemplate = project.brandKit && template
+          ? applyBrandKitToTemplate(template, {
+              primaryColor: project.brandKit.primaryColor || undefined,
+              secondaryColor: project.brandKit.secondaryColor || undefined,
+              accentColor: project.brandKit.accentColor || undefined,
+            })
+          : template;
+
+        return {
+          type: moduleSpec.id,
+          templateId: finalTemplate?.id || `default-${moduleSpec.id}`,
+          content: {
+            headline: moduleContent.headline,
+            bodyText: moduleContent.bodyText,
+            imageDescriptions: moduleContent.imageDescriptions,
+            ...moduleContent.additionalContent,
+          },
+          template: finalTemplate ? JSON.parse(JSON.stringify(finalTemplate)) : null,
+        };
+      });
+
+      // Step 3: Create or update APlusContent record
+      const aPlusContent = await ctx.db.aPlusContent.upsert({
+        where: { projectId: input.projectId },
+        create: {
+          projectId: input.projectId,
+          modules: generatedModules,
+          isPremium: input.isPremium,
+        },
+        update: {
+          modules: generatedModules,
+          isPremium: input.isPremium,
+        },
+      });
+
+      return {
+        id: aPlusContent.id,
+        projectId: aPlusContent.projectId,
+        modules: generatedModules,
+        isPremium: aPlusContent.isPremium,
+        analysis,
+      };
     }),
 
   /**
@@ -51,8 +143,41 @@ export const aPlusRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement A+ content update after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Update APlusContent record
+      const aPlusContent = await ctx.db.aPlusContent.upsert({
+        where: { projectId: input.projectId },
+        create: {
+          projectId: input.projectId,
+          modules: input.modules,
+          isPremium: input.isPremium || false,
+        },
+        update: {
+          modules: input.modules,
+          ...(input.isPremium !== undefined ? { isPremium: input.isPremium } : {}),
+        },
+      });
+
+      return {
+        id: aPlusContent.id,
+        projectId: aPlusContent.projectId,
+        modules: aPlusContent.modules,
+        isPremium: aPlusContent.isPremium,
+      };
     }),
 
   /**
@@ -63,8 +188,41 @@ export const aPlusRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement A+ content retrieval after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Get APlusContent
+      const aPlusContent = await ctx.db.aPlusContent.findUnique({
+        where: { projectId: input.projectId },
+      });
+
+      if (!aPlusContent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "A+ content not found for this project",
+        });
+      }
+
+      return {
+        id: aPlusContent.id,
+        projectId: aPlusContent.projectId,
+        modules: aPlusContent.modules as any,
+        isPremium: aPlusContent.isPremium,
+        createdAt: aPlusContent.createdAt,
+        updatedAt: aPlusContent.updatedAt,
+      };
     }),
 
   /**
@@ -75,10 +233,47 @@ export const aPlusRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement A+ content export after Prisma client is generated
-      // Generate images with Amazon-ready sizes
-      // Return download URL
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Get APlusContent
+      const aPlusContent = await ctx.db.aPlusContent.findUnique({
+        where: { projectId: input.projectId },
+      });
+
+      if (!aPlusContent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "A+ content not found for this project",
+        });
+      }
+
+      // TODO: Implement actual image rendering and ZIP generation
+      // For now, return a placeholder response
+      // This will be implemented in Story 15 (A+ Content Generator - Rendering)
+      throw new TRPCError({
+        code: "NOT_IMPLEMENTED",
+        message: "A+ content export (image rendering) will be implemented in Story 15",
+      });
+
+      // Future implementation:
+      // 1. Render each module as image using renderer
+      // 2. Generate images at Amazon-required sizes (970px width)
+      // 3. Create ZIP file with all module images
+      // 4. Upload ZIP to Supabase Storage (exports bucket)
+      // 5. Return signed download URL
     }),
 });
 
