@@ -28,9 +28,9 @@ const Feature = ({ icon, title, description, metric, delay }: FeatureProps): Rea
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-orange-600 dark:hover:border-orange-600 transition-colors duration-300"
+      className="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-amber-600 dark:hover:border-amber-600 transition-colors duration-300"
     >
-      <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mb-4">
+      <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center mb-4">
         {icon}
       </div>
 
@@ -43,7 +43,7 @@ const Feature = ({ icon, title, description, metric, delay }: FeatureProps): Rea
       </p>
 
       {metric && (
-        <div className="text-2xl font-bold text-orange-600 dark:text-orange-500">
+        <div className="text-2xl font-bold text-amber-600 dark:text-amber-500">
           {metric}
         </div>
       )}
@@ -54,45 +54,45 @@ const Feature = ({ icon, title, description, metric, delay }: FeatureProps): Rea
 export const BusinessFeatures = (): React.ReactElement => {
   const features = [
     {
-      icon: <DollarSign className="w-6 h-6 text-orange-600" />,
+      icon: <DollarSign className="w-6 h-6 text-amber-600" />,
       title: "Increase Revenue",
       description: "Better images = higher conversion rates. Our customers see an average 47% increase in sales.",
       metric: "+47% Sales",
     },
     {
-      icon: <TrendingUp className="w-6 h-6 text-orange-600" />,
+      icon: <TrendingUp className="w-6 h-6 text-amber-600" />,
       title: "Reduce Time to Market",
       description: "Launch new products 10x faster. What took days now takes minutes.",
       metric: "10x Faster",
     },
     {
-      icon: <Zap className="w-6 h-6 text-orange-600" />,
+      icon: <Zap className="w-6 h-6 text-amber-600" />,
       title: "Save on Design Costs",
       description: "Eliminate expensive freelancers. Save $2,000+ per month on design work.",
       metric: "$2K+ Saved",
     },
     {
-      icon: <Shield className="w-6 h-6 text-orange-600" />,
+      icon: <Shield className="w-6 h-6 text-amber-600" />,
       title: "Amazon Compliant",
       description: "100% compliance guaranteed. All images meet Amazon's strict technical requirements.",
     },
     {
-      icon: <BarChart3 className="w-6 h-6 text-orange-600" />,
+      icon: <BarChart3 className="w-6 h-6 text-amber-600" />,
       title: "Data-Driven Optimization",
       description: "AI analyzes top-performing listings to create content proven to convert.",
     },
     {
-      icon: <Users className="w-6 h-6 text-orange-600" />,
+      icon: <Users className="w-6 h-6 text-amber-600" />,
       title: "Team Collaboration",
       description: "Built for teams. Multiple users, approval workflows, and centralized brand assets.",
     },
     {
-      icon: <Globe2 className="w-6 h-6 text-orange-600" />,
+      icon: <Globe2 className="w-6 h-6 text-amber-600" />,
       title: "Multi-Marketplace",
       description: "One platform for Amazon, Shopify, eBay, Etsy, Walmart, and more.",
     },
     {
-      icon: <Award className="w-6 h-6 text-orange-600" />,
+      icon: <Award className="w-6 h-6 text-amber-600" />,
       title: "White-Label Ready",
       description: "Perfect for agencies. White-label options and API access available.",
     },
@@ -147,7 +147,7 @@ export const BusinessFeatures = (): React.ReactElement => {
             { value: "SOC 2", label: "Certified" },
           ].map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-3xl font-bold text-orange-600 dark:text-orange-500 mb-2">
+              <div className="text-3xl font-bold text-amber-600 dark:text-amber-500 mb-2">
                 {stat.value}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">

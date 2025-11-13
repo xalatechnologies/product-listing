@@ -50,7 +50,7 @@ export const Footer = (): React.ReactElement => {
               href="/"
               className="inline-flex items-center gap-2 text-xl font-bold text-white mb-4"
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-600 via-blue-600 to-green-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 via-yellow-500 to-amber-600 rounded-xl flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span>ListingAI</span>
@@ -66,7 +66,7 @@ export const Footer = (): React.ReactElement => {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-lg bg-gray-800 hover:bg-blue-600 flex items-center justify-center transition-colors duration-300"
+                  className="w-10 h-10 rounded-lg bg-gray-800 hover:bg-amber-600 flex items-center justify-center transition-colors duration-300"
                 >
                   {social.icon}
                 </a>
@@ -82,7 +82,7 @@ export const Footer = (): React.ReactElement => {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-amber-400 transition-colors duration-300"
                   >
                     {link.label}
                   </a>
@@ -99,7 +99,7 @@ export const Footer = (): React.ReactElement => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-amber-400 transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -116,7 +116,7 @@ export const Footer = (): React.ReactElement => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-amber-400 transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -133,7 +133,7 @@ export const Footer = (): React.ReactElement => {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-gray-400 hover:text-blue-400 transition-colors duration-300"
+                    className="text-gray-400 hover:text-amber-400 transition-colors duration-300"
                   >
                     {link.label}
                   </Link>

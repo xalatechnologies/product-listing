@@ -41,7 +41,7 @@ const CaseStudy = ({
         <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {company}
         </h3>
-        <p className="text-orange-600 dark:text-orange-500 font-semibold">
+        <p className="text-amber-600 dark:text-amber-500 font-semibold">
           {industry}
         </p>
       </div>
@@ -57,10 +57,10 @@ const CaseStudy = ({
       </div>
 
       {/* Results */}
-      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
         {results.map((result, index) => (
           <div key={index} className="text-center">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-500 mb-1">
+            <div className="text-2xl font-bold text-amber-600 dark:text-amber-500 mb-1">
               {result.value}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -72,7 +72,7 @@ const CaseStudy = ({
 
       {/* Quote */}
       <div className="relative">
-        <Quote className="w-8 h-8 text-orange-600 opacity-20 absolute -top-2 -left-2" />
+        <Quote className="w-8 h-8 text-amber-600 opacity-20 absolute -top-2 -left-2" />
         <p className="text-gray-700 dark:text-gray-300 italic mb-4 pl-6">
           "{quote}"
         </p>

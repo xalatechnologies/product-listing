@@ -117,22 +117,22 @@ export const HowItWorks = (): React.ReactElement => {
     {
       title: "Upload Your Product",
       description: "Upload 1-10 product photos. Our AI handles the rest - no design skills needed.",
-      icon: <Upload className="w-10 h-10 text-orange-600" />,
+      icon: <Upload className="w-10 h-10 text-amber-700" />,
     },
     {
       title: "AI Generates Content",
       description: "Advanced AI creates professional images, infographics, A+ content, and more in under 2 minutes.",
-      icon: <Wand2 className="w-10 h-10 text-orange-600" />,
+      icon: <Wand2 className="w-10 h-10 text-amber-700" />,
     },
     {
       title: "Review & Customize",
       description: "Preview all generated assets. Make tweaks with our simple editor or regenerate instantly.",
-      icon: <Download className="w-10 h-10 text-orange-600" />,
+      icon: <Download className="w-10 h-10 text-amber-700" />,
     },
     {
       title: "Launch & Sell More",
       description: "Export Amazon-ready files or publish directly. Watch your conversion rates soar.",
-      icon: <Rocket className="w-10 h-10 text-orange-600" />,
+      icon: <Rocket className="w-10 h-10 text-amber-700" />,
     },
   ];
 

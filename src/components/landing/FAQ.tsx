@@ -23,13 +23,13 @@ const FAQItem = ({ question, answer, delay }: FAQItemProps): React.ReactElement 
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full py-6 flex items-center justify-between text-left hover:text-orange-600 transition-colors"
+        className="w-full py-6 flex items-center justify-between text-left hover:text-amber-600 transition-colors"
       >
         <span className="text-lg font-semibold text-gray-900 dark:text-white pr-8">
           {question}
         </span>
         <ChevronDown
-          className={`w-5 h-5 text-orange-600 flex-shrink-0 transition-transform duration-200 ${
+          className={`w-5 h-5 text-amber-600 flex-shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -142,7 +142,7 @@ export const FAQ = (): React.ReactElement => {
           </p>
           <a
             href="mailto:support@listingai.com"
-            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold"
+            className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700 font-semibold"
           >
             Contact our support team →
           </a>

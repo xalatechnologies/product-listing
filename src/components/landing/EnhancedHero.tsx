@@ -330,17 +330,17 @@ export const EnhancedHero = (): React.ReactElement => {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm"
             >
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-500" />
+                <CheckCircle2 className="w-5 h-5 text-amber-700 dark:text-amber-400" />
                 <span className="font-bold text-gray-800 dark:text-gray-200">No credit card needed</span>
               </div>
               <span className="text-gray-400">•</span>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-500" />
+                <CheckCircle2 className="w-5 h-5 text-amber-700 dark:text-amber-400" />
                 <span className="font-bold text-gray-800 dark:text-gray-200">We'll help you get started</span>
               </div>
               <span className="text-gray-400">•</span>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-500" />
+                <CheckCircle2 className="w-5 h-5 text-amber-700 dark:text-amber-400" />
                 <span className="font-bold text-gray-800 dark:text-gray-200">Cancel anytime</span>
               </div>
             </motion.div>

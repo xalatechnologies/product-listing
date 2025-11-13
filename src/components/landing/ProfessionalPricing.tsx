@@ -36,14 +36,14 @@ const PricingTier = ({
       transition={{ duration: 0.5, delay }}
       className={`relative bg-white dark:bg-gray-800 rounded-2xl border-2 ${
         highlighted
-          ? "border-orange-600 shadow-2xl scale-105"
+          ? "border-amber-600 shadow-2xl scale-105"
           : "border-gray-200 dark:border-gray-700 shadow-lg"
       } p-8`}
     >
       {/* Badge */}
       {badge && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <div className="bg-orange-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+          <div className="bg-amber-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
             {badge}
           </div>
         </div>
@@ -51,7 +51,7 @@ const PricingTier = ({
 
       {/* Icon & Name */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+        <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
           {icon}
         </div>
         <div>
@@ -81,7 +81,7 @@ const PricingTier = ({
         href="/auth/signin"
         className={`block w-full text-center py-4 px-6 rounded-lg font-semibold mb-8 transition-all duration-200 ${
           highlighted
-            ? "bg-orange-600 hover:bg-orange-700 text-white shadow-lg hover:shadow-xl"
+            ? "bg-amber-600 hover:bg-amber-700 text-white shadow-lg hover:shadow-xl"
             : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
         }`}
       >
@@ -92,7 +92,7 @@ const PricingTier = ({
       <ul className="space-y-4">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start gap-3">
-            <Check className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <Check className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <span className="text-gray-700 dark:text-gray-300">{feature}</span>
           </li>
         ))}
@@ -108,7 +108,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
       price: "$19",
       period: "/month",
       description: "Perfect for individual sellers testing the waters",
-      icon: <Zap className="w-6 h-6 text-orange-600" />,
+      icon: <Zap className="w-6 h-6 text-amber-600" />,
       features: [
         "10 product listings per month",
         "All AI image generation tools",
@@ -123,7 +123,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
       price: "$49",
       period: "/month",
       description: "For growing businesses and power sellers",
-      icon: <Crown className="w-6 h-6 text-orange-600" />,
+      icon: <Crown className="w-6 h-6 text-amber-600" />,
       badge: "Most Popular",
       highlighted: true,
       features: [
@@ -142,7 +142,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
       price: "$199",
       period: "/month",
       description: "For agencies and large-scale operations",
-      icon: <Building2 className="w-6 h-6 text-orange-600" />,
+      icon: <Building2 className="w-6 h-6 text-amber-600" />,
       features: [
         "Unlimited product listings",
         "White-label capabilities",
@@ -182,7 +182,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
               Monthly
             </button>
             <button className="px-6 py-2 rounded-md font-semibold text-gray-600 dark:text-gray-400">
-              Annual <span className="text-orange-600">(Save 20%)</span>
+              Annual <span className="text-amber-600">(Save 20%)</span>
             </button>
           </div>
         </motion.div>
@@ -211,7 +211,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-2xl p-8 text-center text-white"
+          className="bg-gradient-to-r from-amber-600 to-amber-700 rounded-2xl p-8 text-center text-white"
         >
           <h3 className="text-3xl font-bold mb-4">Enterprise Solutions</h3>
           <p className="text-xl mb-6 opacity-90">
@@ -219,7 +219,7 @@ export const ProfessionalPricing = (): React.ReactElement => {
           </p>
           <Link
             href="/contact"
-            className="inline-flex items-center gap-2 bg-white text-orange-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            className="inline-flex items-center gap-2 bg-white text-amber-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
           >
             Contact Sales Team
             <ArrowRight className="w-5 h-5" />

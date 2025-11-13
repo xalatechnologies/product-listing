@@ -6,12 +6,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerAuthSession } from "@/lib/auth";
 import { uploadProductImage, uploadBrandKitLogo } from "@/lib/storage";
+import { checkRateLimit, getRateLimitHeaders } from "@/lib/middleware/rateLimit";
+import { sanitizeFileName } from "@/lib/utils/security";
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerAuthSession();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Rate limiting: 20 uploads per minute per user
+    const rateLimit = checkRateLimit(session.user.id, 20, 60000);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: getRateLimitHeaders(rateLimit.remaining, rateLimit.resetAt, 20),
+        },
+      );
     }
 
     const formData = await req.formData();
@@ -57,11 +71,14 @@ export async function POST(req: NextRequest) {
       console.error("Failed to get image dimensions:", error);
     }
 
+    // Sanitize filename
+    const sanitizedFileName = sanitizeFileName(file.name);
+
     // Upload based on type
     if (type === "brand-kit" && brandKitId) {
       url = await uploadBrandKitLogo(userId, brandKitId, file);
     } else if (projectId) {
-      url = await uploadProductImage(userId, projectId, file, file.name);
+      url = await uploadProductImage(userId, projectId, file, sanitizedFileName);
     } else {
       return NextResponse.json(
         { error: "projectId or brandKitId required" },
@@ -69,13 +86,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      url,
-      width,
-      height,
-      size: file.size,
-      filename: file.name,
-    });
+    // Add rate limit headers to response
+    const responseHeaders = getRateLimitHeaders(rateLimit.remaining, rateLimit.resetAt, 20);
+
+    return NextResponse.json(
+      {
+        url,
+        width,
+        height,
+        size: file.size,
+        filename: sanitizedFileName,
+      },
+      { headers: responseHeaders },
+    );
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
