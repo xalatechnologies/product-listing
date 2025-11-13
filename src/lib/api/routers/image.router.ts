@@ -9,6 +9,7 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { ImageType } from "@prisma/client";
 
@@ -30,16 +31,41 @@ const generateImageSchema = z.object({
 export const imageRouter = createTRPCRouter({
   /**
    * Upload a product image
+   * Note: File upload happens via /api/upload, this creates the database record
    */
   upload: protectedProcedure
     .input(uploadImageSchema)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement image upload after Prisma client is generated
       // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
       // Create ProjectImage record
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      const image = await ctx.db.projectImage.create({
+        data: {
+          projectId: input.projectId,
+          url: input.url,
+          width: input.width,
+          height: input.height,
+          size: input.size,
+          order: input.order,
+        },
+      });
+
+      return image;
     }),
 
   /**
@@ -58,6 +84,37 @@ export const imageRouter = createTRPCRouter({
     }),
 
   /**
+   * List product images for a project
+   */
+  listProductImages: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      const images = await ctx.db.projectImage.findMany({
+        where: { projectId: input.projectId },
+        orderBy: { order: "asc" },
+      });
+
+      return images;
+    }),
+
+  /**
    * List generated images for a project
    */
   list: protectedProcedure
@@ -65,8 +122,61 @@ export const imageRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement image listing after Prisma client is generated
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      const images = await ctx.db.generatedImage.findMany({
+        where: { projectId: input.projectId },
+        orderBy: { createdAt: "desc" },
+      });
+
+      return images;
+    }),
+
+  /**
+   * Delete a product image
+   */
+  deleteProductImage: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify image belongs to user's project
+      const image = await ctx.db.projectImage.findFirst({
+        where: { id: input.id },
+        include: {
+          project: true,
+        },
+      });
+
+      if (!image || image.project.userId !== userId) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Image not found",
+        });
+      }
+
+      // TODO: Delete file from Supabase Storage
+      // const path = extractPathFromUrl(image.url);
+      // await deleteFile("product-images", path);
+
+      await ctx.db.projectImage.delete({
+        where: { id: input.id },
+      });
+
+      return { success: true };
     }),
 
   /**

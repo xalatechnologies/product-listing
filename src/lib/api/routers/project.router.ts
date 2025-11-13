@@ -10,6 +10,7 @@
  */
 
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { ProjectStatus } from "@prisma/client";
 
@@ -34,18 +35,24 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement project creation after Prisma client is generated
-      // const project = await ctx.db.project.create({
-      //   data: {
-      //     userId,
-      //     ...input,
-      //     status: ProjectStatus.DRAFT,
-      //   },
-      // });
+      const project = await ctx.db.project.create({
+        data: {
+          userId,
+          ...input,
+          status: ProjectStatus.DRAFT,
+        },
+        include: {
+          brandKit: true,
+          _count: {
+            select: {
+              productImages: true,
+              generatedImages: true,
+            },
+          },
+        },
+      });
 
-      // return project;
-
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      return project;
     }),
 
   /**
@@ -54,24 +61,21 @@ export const projectRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    // TODO: Implement project listing after Prisma client is generated
-    // const projects = await ctx.db.project.findMany({
-    //   where: { userId },
-    //   orderBy: { updatedAt: "desc" },
-    //   include: {
-    //     brandKit: true,
-    //     _count: {
-    //       select: {
-    //         productImages: true,
-    //         generatedImages: true,
-    //       },
-    //     },
-    //   },
-    // });
+    const projects = await ctx.db.project.findMany({
+      where: { userId },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        brandKit: true,
+        _count: {
+          select: {
+            productImages: true,
+            generatedImages: true,
+          },
+        },
+      },
+    });
 
-    // return projects;
-
-    throw new Error("Not implemented: Prisma client needs to be generated");
+    return projects;
   }),
 
   /**
@@ -82,34 +86,31 @@ export const projectRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement project retrieval after Prisma client is generated
-      // const project = await ctx.db.project.findFirst({
-      //   where: {
-      //     id: input.id,
-      //     userId,
-      //   },
-      //   include: {
-      //     productImages: {
-      //       orderBy: { order: "asc" },
-      //     },
-      //     generatedImages: {
-      //       orderBy: { createdAt: "desc" },
-      //     },
-      //     brandKit: true,
-      //     aPlusContent: true,
-      //   },
-      // });
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.id,
+          userId,
+        },
+        include: {
+          productImages: {
+            orderBy: { order: "asc" },
+          },
+          generatedImages: {
+            orderBy: { createdAt: "desc" },
+          },
+          brandKit: true,
+          aPlusContent: true,
+        },
+      });
 
-      // if (!project) {
-      //   throw new TRPCError({
-      //     code: "NOT_FOUND",
-      //     message: "Project not found",
-      //   });
-      // }
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
 
-      // return project;
-
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      return project;
     }),
 
   /**
@@ -121,18 +122,33 @@ export const projectRouter = createTRPCRouter({
       const userId = ctx.session.user.id;
       const { id, ...data } = input;
 
-      // TODO: Implement project update after Prisma client is generated
-      // const project = await ctx.db.project.updateMany({
-      //   where: {
-      //     id,
-      //     userId,
-      //   },
-      //   data,
-      // });
+      // Verify project belongs to user
+      const existing = await ctx.db.project.findFirst({
+        where: { id, userId },
+      });
 
-      // return project;
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
 
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      const project = await ctx.db.project.update({
+        where: { id },
+        data,
+        include: {
+          brandKit: true,
+          _count: {
+            select: {
+              productImages: true,
+              generatedImages: true,
+            },
+          },
+        },
+      });
+
+      return project;
     }),
 
   /**
@@ -143,17 +159,28 @@ export const projectRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement project deletion after Prisma client is generated
-      // await ctx.db.project.deleteMany({
-      //   where: {
-      //     id: input.id,
-      //     userId,
-      //   },
-      // });
+      // Verify project belongs to user
+      const existing = await ctx.db.project.findFirst({
+        where: { id: input.id, userId },
+      });
 
-      // return { success: true };
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
 
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Delete project (cascade will delete related images)
+      await ctx.db.project.delete({
+        where: { id: input.id },
+      });
+
+      // TODO: Delete files from Supabase Storage
+      // await deleteProjectFiles(userId, input.id, "product-images");
+      // await deleteProjectFiles(userId, input.id, "generated-images");
+
+      return { success: true };
     }),
 });
 
