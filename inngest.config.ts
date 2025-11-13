@@ -17,13 +17,21 @@ export type AppEvents = {
       metadata?: Record<string, any>;
     };
   };
+  "image/generate": {
+    data: {
+      projectId: string;
+      userId: string;
+      imageType: string;
+      style?: string;
+    };
+  };
 };
 
 // Initialize Inngest with typed events
 export const inngest = new Inngest({
-  id: "newco",
-  eventKey: "events",
-  validateEvents: process.env.NODE_ENV === "development",
+  id: "product-listing",
+  eventKey: process.env.INNGEST_EVENT_KEY || "local",
+  signingKey: process.env.INNGEST_SIGNING_KEY,
 });
 
 // Define event handlers
@@ -57,6 +65,7 @@ export const messageHandlerFn = inngest.createFunction(
 );
 
 // Export the serve function for use in API routes
+// Functions will be added dynamically in the API route handler
 export const serveInngest = serve({
   client: inngest,
   functions: [userRegisteredFn, messageHandlerFn],

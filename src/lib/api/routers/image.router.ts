@@ -76,11 +76,56 @@ export const imageRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement image generation after Prisma client is generated
       // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // TODO: Check user has enough credits
+      // const user = await ctx.db.user.findUnique({ where: { id: userId } });
+      // if (!user || user.credits < getCreditsRequired(input.type)) {
+      //   throw new TRPCError({
+      //     code: "PAYMENT_REQUIRED",
+      //     message: "Insufficient credits",
+      //   });
+      // }
+
+      // TODO: Deduct credits before generation
+      // await ctx.db.creditTransaction.create({
+      //   data: {
+      //     userId,
+      //     amount: -getCreditsRequired(input.type),
+      //     type: CreditType.IMAGE_GENERATION,
+      //     description: `Generate ${input.type} image`,
+      //   },
+      // });
+
       // Queue Inngest job for image generation
-      // Return job ID for status tracking
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      const { inngest } = await import("@/../inngest.config");
+      const eventId = await inngest.send({
+        name: "image/generate",
+        data: {
+          projectId: input.projectId,
+          userId,
+          imageType: input.type,
+          style: input.style,
+        },
+      });
+
+      return {
+        jobId: eventId.ids[0],
+        status: "queued",
+      };
     }),
 
   /**
