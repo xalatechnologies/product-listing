@@ -10,7 +10,6 @@
  */
 
 import { supabase } from "../supabase/client";
-import { supabaseAdmin } from "../supabase/server";
 
 export interface SupabaseAuthUser {
   id: string;
@@ -160,8 +159,11 @@ export async function updatePassword(newPassword: string) {
 /**
  * Sync Supabase Auth user to Prisma User table
  * Call this after successful Supabase auth to create/update user in Prisma
+ * NOTE: This function must be called server-side only
  */
 export async function syncUserToPrisma(supabaseUserId: string) {
+  // Dynamic import to avoid bundling server code in client components
+  const { supabaseAdmin } = await import("../supabase/server");
   const { data: supabaseUser, error: fetchError } = await supabaseAdmin.auth.admin.getUserById(
     supabaseUserId,
   );
