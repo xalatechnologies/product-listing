@@ -47,9 +47,11 @@ export default function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch projects with pagination (fetch more than needed for client-side filtering)
-  const { data: projectsData, isLoading } = api.project.list.useQuery({
+  const { data: projectsData, isLoading, error: projectsError } = api.project.list.useQuery({
     limit: 100, // Fetch up to 100 projects for client-side filtering
     offset: 0,
+  }, {
+    retry: false,
   });
 
   // Handle both paginated and non-paginated responses
@@ -59,9 +61,20 @@ export default function DashboardPage() {
   const totalProjects = Array.isArray(projectsData) 
     ? projectsData.length 
     : projectsData?.total || 0;
-  const { data: credits } = api.subscription.getCredits.useQuery(undefined, {
+  const { data: credits, error: creditsError } = api.subscription.getCredits.useQuery(undefined, {
     refetchInterval: 30000, // Poll every 30 seconds
+    retry: false,
   });
+
+  // Log errors for debugging
+  useEffect(() => {
+    if (projectsError) {
+      console.error("Failed to fetch projects:", projectsError);
+    }
+    if (creditsError) {
+      console.error("Failed to fetch credits:", creditsError);
+    }
+  }, [projectsError, creditsError]);
 
   // Filter and sort projects
   const filteredAndSortedProjects = useMemo(() => {
@@ -148,6 +161,37 @@ export default function DashboardPage() {
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200";
     }
   };
+
+  // Show error state if there's an error
+  if (projectsError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-md mx-auto p-8"
+        >
+          <div className="bg-red-100 dark:bg-red-900/30 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <span className="text-4xl">⚠️</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Error Loading Dashboard
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {projectsError.message || "Failed to load your projects. Please try again."}
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all"
+          >
+            Retry
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

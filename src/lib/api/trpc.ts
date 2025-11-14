@@ -26,13 +26,29 @@ import { prisma } from "../db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await getServerAuthSession();
+  try {
+    const session = await getServerAuthSession();
+    
+    // Log session status in development for debugging
+    if (process.env.NODE_ENV === "development") {
+      console.log("tRPC Context - Session exists:", !!session);
+      console.log("tRPC Context - User exists:", !!session?.user);
+    }
 
-  return {
-    session,
-    db: prisma,
-    ...opts,
-  };
+    return {
+      session,
+      db: prisma,
+      ...opts,
+    };
+  } catch (error) {
+    console.error("Error creating tRPC context:", error);
+    // Return context without session if there's an error
+    return {
+      session: null,
+      db: prisma,
+      ...opts,
+    };
+  }
 };
 
 /**
