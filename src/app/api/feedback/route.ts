@@ -11,7 +11,7 @@ import { z } from "zod";
 const feedbackSchema = z.object({
   message: z.string().min(1).max(5000),
   email: z.string().email().optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -32,11 +32,11 @@ export async function POST(req: NextRequest) {
         userId,
         email,
         message: validated.message,
-        metadata: validated.metadata || {
+        metadata: (validated.metadata || {
           userAgent: req.headers.get("user-agent"),
           url: req.headers.get("referer"),
           timestamp: new Date().toISOString(),
-        },
+        }) as any,
       },
     });
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid input", details: error.errors },
+        { error: "Invalid input", details: error.issues },
         { status: 400 }
       );
     }

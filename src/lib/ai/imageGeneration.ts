@@ -50,7 +50,11 @@ export async function generateImageFromPrompt(
       n: options.n || 1,
     });
 
-    return response.data.map((image) => ({
+    if (!response.data || response.data.length === 0) {
+      throw new Error("No images generated");
+    }
+
+    return response.data!.map((image) => ({
       url: image.url!,
       revisedPrompt: "revised_prompt" in image ? image.revised_prompt : undefined,
     }));

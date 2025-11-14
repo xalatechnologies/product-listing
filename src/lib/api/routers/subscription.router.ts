@@ -307,7 +307,7 @@ export const subscriptionRouter = createTRPCRouter({
       z.object({
         amount: z.number().int().positive(),
         description: z.string().optional(),
-        metadata: z.record(z.any()).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -334,7 +334,7 @@ export const subscriptionRouter = createTRPCRouter({
           amount: -input.amount,
           type: "USAGE",
           description: input.description || "Credit usage",
-          metadata: input.metadata,
+          metadata: input.metadata as any,
         },
       });
 
