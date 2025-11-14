@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Image upload component with drag & drop support
+ * Image upload component with drag & drop support and upload progress tracking
  */
 
 import { useState, useRef } from "react";
@@ -17,6 +17,14 @@ interface ImageUploadProps {
   acceptedTypes?: string[];
 }
 
+interface UploadProgress {
+  fileName: string;
+  progress: number; // 0-100
+  speed: number; // bytes per second
+  loaded: number; // bytes loaded
+  total: number; // total bytes
+}
+
 export function ImageUpload({
   projectId,
   onUploadComplete,
@@ -25,7 +33,9 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Map<string, UploadProgress>>(new Map());
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadStartTimes = useRef<Map<string, number>>(new Map());
 
   const utils = api.useUtils();
   const uploadImage = api.image.upload.useMutation({
@@ -40,6 +50,7 @@ export function ImageUpload({
 
     const fileArray = Array.from(files).slice(0, maxFiles);
     setUploading(true);
+    setUploadProgress(new Map());
 
     try {
       for (const file of fileArray) {
@@ -60,44 +71,145 @@ export function ImageUpload({
       }
     } finally {
       setUploading(false);
+      setUploadProgress(new Map());
+      uploadStartTimes.current.clear();
     }
   };
 
-  const uploadFile = async (file: File) => {
-    try {
+  const uploadFile = async (file: File): Promise<void> => {
+    const fileName = file.name;
+    const startTime = Date.now();
+    uploadStartTimes.current.set(fileName, startTime);
+
+    // Initialize progress
+    setUploadProgress((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(fileName, {
+        fileName,
+        progress: 0,
+        speed: 0,
+        loaded: 0,
+        total: file.size,
+      });
+      return newMap;
+    });
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
       const formData = new FormData();
       formData.append("file", file);
       formData.append("projectId", projectId);
       formData.append("type", "product");
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100);
+          const elapsed = (Date.now() - startTime) / 1000; // seconds
+          const speed = elapsed > 0 ? e.loaded / elapsed : 0; // bytes per second
+
+          setUploadProgress((prev) => {
+            const newMap = new Map(prev);
+            newMap.set(fileName, {
+              fileName,
+              progress,
+              speed,
+              loaded: e.loaded,
+              total: e.total,
+            });
+            return newMap;
+          });
+        }
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Upload failed");
-      }
+      // Handle completion
+      xhr.addEventListener("load", async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
 
-      const data = await response.json();
+            // Create database record
+            const image = await uploadImage.mutateAsync({
+              projectId,
+              url: data.url,
+              width: data.width,
+              height: data.height,
+              size: data.size,
+              order: 0,
+            });
 
-      // Create database record
-      const image = await uploadImage.mutateAsync({
-        projectId,
-        url: data.url,
-        width: data.width,
-        height: data.height,
-        size: data.size,
-        order: 0,
+            // Remove from progress tracking
+            setUploadProgress((prev) => {
+              const newMap = new Map(prev);
+              newMap.delete(fileName);
+              return newMap;
+            });
+            uploadStartTimes.current.delete(fileName);
+
+            toast.success(`${file.name} uploaded successfully`);
+            onUploadComplete?.(image);
+            resolve();
+          } catch (error) {
+            console.error("Upload error:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to upload image");
+            reject(error);
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            throw new Error(error.error || "Upload failed");
+          } catch (parseError) {
+            throw new Error("Upload failed");
+          }
+        }
       });
 
-      toast.success(`${file.name} uploaded successfully`);
-      onUploadComplete?.(image);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to upload image");
-      throw error; // Re-throw to allow handleFileSelect to handle it
+      // Handle errors
+      xhr.addEventListener("error", () => {
+        uploadStartTimes.current.delete(fileName);
+        setUploadProgress((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(fileName);
+          return newMap;
+        });
+        toast.error(`Failed to upload ${file.name}`);
+        reject(new Error("Network error"));
+      });
+
+      // Handle abort
+      xhr.addEventListener("abort", () => {
+        uploadStartTimes.current.delete(fileName);
+        setUploadProgress((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(fileName);
+          return newMap;
+        });
+        reject(new Error("Upload cancelled"));
+      });
+
+      // Send request
+      xhr.open("POST", "/api/upload");
+      xhr.send(formData);
+    });
+  };
+
+  const formatSpeed = (bytesPerSecond: number): string => {
+    if (bytesPerSecond < 1024) {
+      return `${Math.round(bytesPerSecond)} B/s`;
+    } else if (bytesPerSecond < 1024 * 1024) {
+      return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
+    } else {
+      return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+    }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    } else if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    } else {
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     }
   };
 
@@ -118,7 +230,7 @@ export function ImageUpload({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-4">
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -169,6 +281,41 @@ export function ImageUpload({
           </button>
         </div>
       </div>
+
+      {/* Upload Progress Indicators */}
+      {uploadProgress.size > 0 && (
+        <div className="space-y-3">
+          {Array.from(uploadProgress.values()).map((progress) => (
+            <div
+              key={progress.fileName}
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex-1 mr-2">
+                  {progress.fileName}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                  {progress.progress}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress.progress}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>
+                  {formatFileSize(progress.loaded)} / {formatFileSize(progress.total)}
+                </span>
+                {progress.speed > 0 && (
+                  <span className="text-blue-600 dark:text-blue-400">{formatSpeed(progress.speed)}</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
