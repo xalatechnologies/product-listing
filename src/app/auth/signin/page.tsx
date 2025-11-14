@@ -90,14 +90,18 @@ function SignInContent() {
             const sessionData = await sessionResponse.json();
             console.log("Session created successfully:", sessionData);
             
-            // Wait a moment for cookie to be set
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Check if cookies were set
+            console.log("Cookies after session creation:", document.cookie);
             
             toast.success("Signed in successfully!");
             
-            // Use window.location for full page reload to ensure session is recognized
-            console.log("Redirecting to:", callbackUrl);
-            window.location.href = callbackUrl;
+            // Force a full page reload to ensure middleware picks up the session
+            // Use a small delay to ensure cookie is set
+            setTimeout(() => {
+              console.log("Redirecting to:", callbackUrl);
+              // Force full page navigation
+              window.location.replace(callbackUrl);
+            }, 500);
           } catch (sessionError) {
             console.error("Session creation error:", sessionError);
             toast.error("Failed to create session. Please try again.");
