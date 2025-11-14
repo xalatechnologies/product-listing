@@ -20,12 +20,20 @@ import {
   FileText,
   ArrowLeft,
   ArrowRight,
+  Sparkles,
+  Activity,
+  BarChart3,
+  MoreVertical,
+  Edit,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { CreditBalance } from "@/components/CreditBalance";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { ProjectStatus } from "@prisma/client";
+import { motion } from "framer-motion";
 
 type SortOption = "newest" | "oldest" | "name-asc" | "name-desc";
 
@@ -143,188 +151,303 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-amber-200 border-t-amber-600 dark:border-amber-800 dark:border-t-amber-400" />
+            <Sparkles className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-6 w-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading your dashboard...</p>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <OnboardingTour />
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">My Projects</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage your product listing projects
-          </p>
-        </div>
-        <Link
-          href="/projects/new"
-          className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <OnboardingTour />
+        
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4"
         >
-          <Plus className="h-5 w-5" />
-          New Project
-        </Link>
-      </div>
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-blue-600 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-2 text-lg">
+              Welcome back! Here's what's happening with your projects
+            </p>
+          </div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            >
+              <Plus className="h-5 w-5" />
+              New Project
+            </Link>
+          </motion.div>
+        </motion.div>
 
       {/* Statistics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" data-onboarding="statistics">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+        data-onboarding="statistics"
+      >
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg hover:shadow-xl transition-all overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Projects</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Projects</p>
+              <motion.p
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="text-3xl font-bold text-gray-900 dark:text-gray-100"
+              >
                 {stats.totalProjects}
-              </p>
+              </motion.p>
             </div>
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
+            <motion.div
+              whileHover={{ rotate: 10 }}
+              className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-xl shadow-lg"
+            >
+              <Package className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg hover:shadow-xl transition-all overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Product Images</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Product Images</p>
+              <motion.p
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="text-3xl font-bold text-gray-900 dark:text-gray-100"
+              >
                 {stats.totalImages}
-              </p>
+              </motion.p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <ImageIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
+            <motion.div
+              whileHover={{ rotate: -10 }}
+              className="p-4 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-xl shadow-lg"
+            >
+              <ImageIcon className="h-7 w-7 text-green-600 dark:text-green-400" />
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between">
+        <motion.div
+          whileHover={{ scale: 1.02, y: -4 }}
+          className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg hover:shadow-xl transition-all overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Generated Images</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Generated Images</p>
+              <motion.p
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                className="text-3xl font-bold text-gray-900 dark:text-gray-100"
+              >
                 {stats.totalGenerated}
-              </p>
+              </motion.p>
             </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            </div>
+            <motion.div
+              whileHover={{ rotate: 10 }}
+              className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50 rounded-xl shadow-lg"
+            >
+              <TrendingUp className="h-7 w-7 text-purple-600 dark:text-purple-400" />
+            </motion.div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
-      {/* Credit Balance */}
-      <div className="mb-8">
+        {/* Credit Balance */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="mb-8"
+      >
         <CreditBalance />
-      </div>
+      </motion.div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8" data-onboarding="quick-actions">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link
-            href="/projects/new"
-            className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <Plus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100">Create Project</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Start a new project</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/brand-kits/new"
-            className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <Palette className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100">Create Brand Kit</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Set up brand colors</p>
-            </div>
-          </Link>
-
-          <Link
-            href="/billing"
-            className="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          >
-            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100">Manage Credits</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">View billing & credits</p>
-            </div>
-          </Link>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-8 shadow-lg"
+        data-onboarding="quick-actions"
+      >
+        <div className="flex items-center gap-2 mb-6">
+          <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Quick Actions</h2>
         </div>
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href="/projects/new"
+              className="group flex items-center gap-4 p-5 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+            >
+              <motion.div
+                whileHover={{ rotate: 90 }}
+                className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 rounded-xl group-hover:shadow-lg transition-shadow"
+              >
+                <Plus className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </motion.div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  Create Project
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Start a new project</p>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href="/brand-kits/new"
+              className="group flex items-center gap-4 p-5 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+            >
+              <motion.div
+                whileHover={{ rotate: -90 }}
+                className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50 rounded-xl group-hover:shadow-lg transition-shadow"
+              >
+                <Palette className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+              </motion.div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  Create Brand Kit
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Set up brand colors</p>
+              </div>
+            </Link>
+          </motion.div>
+
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Link
+              href="/billing"
+              className="group flex items-center gap-4 p-5 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-green-500 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all"
+            >
+              <motion.div
+                whileHover={{ rotate: 10 }}
+                className="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/50 dark:to-green-800/50 rounded-xl group-hover:shadow-lg transition-shadow"
+              >
+                <Zap className="h-6 w-6 text-green-600 dark:text-green-400" />
+              </motion.div>
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                  Manage Credits
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">View billing & credits</p>
+              </div>
+            </Link>
+          </motion.div>
+        </div>
+      </motion.div>
 
       {/* Recent Activity */}
       {recentProjects.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Recent Activity
-          </h2>
-          <div className="space-y-3">
-            {recentProjects.map((project) => (
-              <Link
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-6 mb-8 shadow-lg"
+        >
+          <div className="flex items-center gap-2 mb-6">
+            <Activity className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Activity</h2>
+          </div>
+          <div className="space-y-2">
+            {recentProjects.map((project, index) => (
+              <motion.div
                 key={project.id}
-                href={`/projects/${project.id}`}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
               >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                    <Package className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">{project.name}</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Updated {new Date(project.updatedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                    project.status,
-                  )}`}
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="group flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
                 >
-                  {project.status}
-                </span>
-              </Link>
+                  <div className="flex items-center gap-4">
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className="p-2.5 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-xl group-hover:from-blue-100 group-hover:to-blue-200 dark:group-hover:from-blue-900/50 dark:group-hover:to-blue-800/50 transition-all"
+                    >
+                      <Package className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                    </motion.div>
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {project.name}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Updated {new Date(project.updatedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-full shadow-sm ${getStatusColor(
+                      project.status,
+                    )}`}
+                  >
+                    {project.status}
+                  </span>
+                </Link>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 p-5 mb-6 shadow-lg"
+      >
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="flex-1 relative group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors" />
             <input
               type="text"
-              placeholder="Search projects..."
+              placeholder="Search projects by name, product, or description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-amber-500 dark:focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-sm hover:shadow-md"
             />
           </div>
 
           {/* Status Filter */}
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="relative group">
+            <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | "ALL")}
-              className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="pl-12 pr-10 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500 dark:focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-sm hover:shadow-md cursor-pointer appearance-none"
             >
               <option value="ALL">All Status</option>
               <option value="DRAFT">Draft</option>
@@ -335,12 +458,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Sort */}
-          <div className="relative">
-            <ArrowUpDown className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <div className="relative group">
+            <ArrowUpDown className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="pl-12 pr-10 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500 dark:focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all shadow-sm hover:shadow-md cursor-pointer appearance-none"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -349,116 +472,178 @@ export default function DashboardPage() {
             </select>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {!projects || projects.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <Package className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center py-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg"
+        >
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Package className="h-20 w-20 mx-auto text-gray-400 dark:text-gray-500 mb-6" />
+          </motion.div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             No projects yet
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
             Get started by creating your first product listing project
           </p>
-          <Link
-            href="/projects/new"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5" />
-            Create Project
-          </Link>
-        </div>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all"
+            >
+              <Plus className="h-5 w-5" />
+              Create Your First Project
+            </Link>
+          </motion.div>
+        </motion.div>
       ) : filteredAndSortedProjects.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <Search className="h-16 w-16 mx-auto text-gray-400 dark:text-gray-500 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center py-16 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg"
+        >
+          <motion.div
+            animate={{ rotate: [0, -10, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Search className="h-20 w-20 mx-auto text-gray-400 dark:text-gray-500 mb-6" />
+          </motion.div>
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             No projects match your filters
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
             Try adjusting your search or filter criteria
           </p>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               setSearchQuery("");
               setStatusFilter("ALL");
             }}
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all"
           >
             Clear Filters
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginatedProjects.map((project) => (
-            <Link
-              key={project.id}
-              href={`/projects/${project.id}`}
-              className="block bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {project.name}
-                </h3>
-                <span
-                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                    project.status,
-                  )}`}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {paginatedProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.7 + index * 0.05 }}
+                whileHover={{ y: -8 }}
+              >
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="group block bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border-2 border-gray-200 dark:border-gray-700 p-6 hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-2xl transition-all overflow-hidden relative"
                 >
-                  {project.status}
-                </span>
-              </div>
+                  {/* Gradient overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 to-blue-500/0 group-hover:from-amber-500/5 group-hover:to-blue-500/5 transition-all" />
+                  
+                  <div className="relative">
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
+                        {project.name}
+                      </h3>
+                      <span
+                        className={`px-3 py-1 text-xs font-semibold rounded-full shadow-sm flex-shrink-0 ml-2 ${getStatusColor(
+                          project.status,
+                        )}`}
+                      >
+                        {project.status}
+                      </span>
+                    </div>
 
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                {project.productName}
-              </p>
+                    {project.productName && (
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 line-clamp-1">
+                        {project.productName}
+                      </p>
+                    )}
 
-              {project.description && (
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-4 line-clamp-2">
-                  {project.description}
-                </p>
-              )}
+                    {project.description && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-5 line-clamp-2">
+                        {project.description}
+                      </p>
+                    )}
 
-              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                <div className="flex items-center gap-1">
-                  <ImageIcon className="h-4 w-4" />
-                  <span>{project._count.productImages} images</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Package className="h-4 w-4" />
-                  <span>{project._count.generatedImages} generated</span>
-                </div>
-              </div>
+                    <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-5">
+                      <div className="flex items-center gap-2">
+                        <motion.div whileHover={{ scale: 1.2 }}>
+                          <ImageIcon className="h-4 w-4" />
+                        </motion.div>
+                        <span className="font-medium">{project._count.productImages}</span>
+                        <span className="text-xs">images</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <motion.div whileHover={{ scale: 1.2 }}>
+                          <Package className="h-4 w-4" />
+                        </motion.div>
+                        <span className="font-medium">{project._count.generatedImages}</span>
+                        <span className="text-xs">generated</span>
+                      </div>
+                    </div>
 
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    Updated {new Date(project.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </Link>
+                    <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          Updated {new Date(project.updatedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <motion.div
+                        whileHover={{ x: 4 }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <ExternalLink className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
-                {Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSortedProjects.length)} of{" "}
-                {filteredAndSortedProjects.length} projects
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col sm:flex-row items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 gap-4"
+            >
+              <div className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                Showing <span className="font-bold text-gray-900 dark:text-gray-100">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+                <span className="font-bold text-gray-900 dark:text-gray-100">{Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSortedProjects.length)}</span> of{" "}
+                <span className="font-bold text-gray-900 dark:text-gray-100">{filteredAndSortedProjects.length}</span> projects
               </div>
-              <div className="flex gap-2">
-                <button
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-xl hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-600 transition-all shadow-sm hover:shadow-md"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Previous
-                </button>
+                </motion.button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                     let pageNum: number;
@@ -472,33 +657,38 @@ export default function DashboardPage() {
                       pageNum = currentPage - 2 + i;
                     }
                     return (
-                      <button
+                      <motion.button
                         key={pageNum}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setCurrentPage(pageNum)}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-md ${
+                        className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
                           currentPage === pageNum
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            ? "bg-gradient-to-r from-amber-500 to-blue-600 text-white shadow-lg shadow-amber-500/25"
+                            : "text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 shadow-sm hover:shadow-md"
                         }`}
                       >
                         {pageNum}
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-xl hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-300 dark:disabled:hover:border-gray-600 transition-all shadow-sm hover:shadow-md"
                 >
                   Next
                   <ArrowRight className="h-4 w-4" />
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
