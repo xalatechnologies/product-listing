@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Download, Zap, FileText, X } from "lucide-react";
+import { ArrowLeft, Download, Zap, FileText, X, ImageIcon } from "lucide-react";
 import { toast } from "react-toastify";
 
 // Dynamic imports for code splitting
@@ -37,6 +37,8 @@ export default function APlusPage({ params }: APlusPageProps) {
   const { data: project, isLoading: projectLoading } = api.project.get.useQuery({
     id: projectId,
   });
+  const { data: productImages } = api.image.listProductImages.useQuery({ projectId });
+  const { data: generatedImages } = api.image.list.useQuery({ projectId });
   const {
     data: aPlusContent,
     isLoading: aPlusLoading,
@@ -161,6 +163,52 @@ export default function APlusPage({ params }: APlusPageProps) {
         </div>
       </div>
 
+      {/* Available Images Info */}
+      {(productImages && productImages.length > 0) || (generatedImages && generatedImages.length > 0) ? (
+        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <ImageIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                Available Images
+              </p>
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                {productImages && productImages.length > 0 && (
+                  <span>{productImages.length} product image{productImages.length !== 1 ? 's' : ''}</span>
+                )}
+                {productImages && productImages.length > 0 && generatedImages && generatedImages.length > 0 && ' • '}
+                {generatedImages && generatedImages.length > 0 && (
+                  <span>{generatedImages.length} generated image{generatedImages.length !== 1 ? 's' : ''}</span>
+                )}
+                {(!productImages || productImages.length === 0) && (!generatedImages || generatedImages.length === 0) && (
+                  <span>No images available - upload product images or generate listing images</span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <ImageIcon className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">
+                No Images Available
+              </p>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">
+                Upload product images or generate listing images to enhance your A+ content preview.
+              </p>
+              <Link
+                href={`/projects/${projectId}`}
+                className="text-xs text-amber-800 dark:text-amber-200 hover:underline font-medium"
+              >
+                Go to project page to upload images →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       {modules.length === 0 ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
@@ -194,7 +242,12 @@ export default function APlusPage({ params }: APlusPageProps) {
 
           {/* Preview */}
           <div>
-            <APlusPreview modules={modules} brandKit={project.brandKit} />
+            <APlusPreview 
+              modules={modules} 
+              brandKit={project.brandKit}
+              productImages={productImages || []}
+              generatedImages={generatedImages || []}
+            />
           </div>
         </div>
       )}

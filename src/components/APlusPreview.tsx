@@ -6,7 +6,9 @@
  * Displays A+ content modules in a preview format
  */
 
+import Image from "next/image";
 import { APlusModule } from "./APlusEditor";
+import { ImageIcon } from "lucide-react";
 
 interface APlusPreviewProps {
   modules: APlusModule[];
@@ -15,9 +17,16 @@ interface APlusPreviewProps {
     secondaryColor?: string | null;
     accentColor?: string | null;
   } | null;
+  productImages?: Array<{ id: string; url: string }>;
+  generatedImages?: Array<{ id: string; url: string; type: string }>;
 }
 
-export function APlusPreview({ modules, brandKit }: APlusPreviewProps) {
+export function APlusPreview({ modules, brandKit, productImages = [], generatedImages = [] }: APlusPreviewProps) {
+  // Combine all available images
+  const allImages = [
+    ...productImages.map(img => ({ ...img, source: 'product' as const })),
+    ...generatedImages.map(img => ({ ...img, source: 'generated' as const })),
+  ];
   if (modules.length === 0) {
     return (
       <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -130,16 +139,67 @@ export function APlusPreview({ modules, brandKit }: APlusPreviewProps) {
                   <h6 className="font-semibold mb-2 text-gray-900 dark:text-gray-100">
                     Images
                   </h6>
-                  <div className="grid grid-cols-2 gap-2">
-                    {module.content.imageDescriptions.map((desc, i) => (
-                      <div
-                        key={i}
-                        className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 p-2 text-center"
-                      >
-                        {desc}
+                  {allImages.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {module.content.imageDescriptions.map((desc, i) => {
+                        // Use available images, cycling through them
+                        const imageIndex = i % allImages.length;
+                        const image = allImages[imageIndex];
+                        
+                        return (
+                          <div
+                            key={i}
+                            className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden group"
+                          >
+                            {image ? (
+                              <>
+                                <Image
+                                  src={image.url}
+                                  alt={desc}
+                                  fill
+                                  sizes="(max-width: 768px) 50vw, 25vw"
+                                  className="object-cover"
+                                  loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-opacity flex items-center justify-center">
+                                  <p className="text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity px-2 text-center">
+                                    {desc}
+                                  </p>
+                                </div>
+                                <span className="absolute top-1 right-1 text-xs bg-blue-600 text-white px-1.5 py-0.5 rounded">
+                                  {image.source === 'product' ? 'P' : 'G'}
+                                </span>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center">
+                                <ImageIcon className="h-8 w-8 text-gray-400 dark:text-gray-500 mb-1" />
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{desc}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                      <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                        <strong>No images available</strong>
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        Upload product images or generate listing images to see them in your A+ content preview.
+                      </p>
+                      <div className="mt-3 space-y-1">
+                        {module.content.imageDescriptions.map((desc, i) => (
+                          <div
+                            key={i}
+                            className="aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 p-2 text-center"
+                          >
+                            {desc}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
