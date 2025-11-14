@@ -196,6 +196,41 @@ export async function syncUserToPrisma(supabaseUserId: string) {
     },
   });
 
+  // Check if this is a new user (just created)
+  const isNewUser = user.createdAt.getTime() === user.updatedAt.getTime();
+
+  if (isNewUser) {
+    // Create default FREE subscription for new users
+    const existingSubscription = await prisma.subscription.findFirst({
+      where: { userId: user.id },
+    });
+
+    if (!existingSubscription) {
+      await prisma.subscription.create({
+        data: {
+          userId: user.id,
+          plan: "FREE",
+          status: "ACTIVE",
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+        },
+      });
+
+      // Give welcome credits (5 credits to try the platform)
+      await prisma.creditTransaction.create({
+        data: {
+          userId: user.id,
+          amount: 5,
+          type: "PURCHASE",
+          description: "Welcome credits - try our platform!",
+          metadata: {
+            source: "welcome_bonus",
+          },
+        },
+      });
+    }
+  }
+
   return user;
 }
 
