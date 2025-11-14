@@ -171,14 +171,20 @@ export const projectRouter = createTRPCRouter({
         });
       }
 
+      // Delete files from Supabase Storage before deleting project
+      try {
+        const { deleteProjectFiles } = await import("@/lib/storage");
+        await deleteProjectFiles(userId, input.id, "product-images");
+        await deleteProjectFiles(userId, input.id, "generated-images");
+      } catch (error) {
+        // Log error but don't fail deletion if storage deletion fails
+        console.error("Failed to delete project files from storage:", error);
+      }
+
       // Delete project (cascade will delete related images)
       await ctx.db.project.delete({
         where: { id: input.id },
       });
-
-      // TODO: Delete files from Supabase Storage
-      // await deleteProjectFiles(userId, input.id, "product-images");
-      // await deleteProjectFiles(userId, input.id, "generated-images");
 
       return { success: true };
     }),

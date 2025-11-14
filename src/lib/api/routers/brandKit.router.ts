@@ -142,10 +142,17 @@ export const brandKitRouter = createTRPCRouter({
       // Optional: Check if brand kit is used by projects
       // For now, we allow deletion even if in use (cascade will handle projects)
 
-      // TODO: Delete logo file from Supabase Storage
-      // if (existing.logoUrl) {
-      //   await deleteFile("brand-kits", extractPathFromUrl(existing.logoUrl));
-      // }
+      // Delete logo file from Supabase Storage
+      if (existing.logoUrl) {
+        try {
+          const { extractPathFromUrl, deleteFile } = await import("@/lib/storage");
+          const path = extractPathFromUrl(existing.logoUrl);
+          await deleteFile("brand-kits", path);
+        } catch (error) {
+          // Log error but don't fail deletion if storage deletion fails
+          console.error("Failed to delete logo from storage:", error);
+        }
+      }
 
       await ctx.db.brandKit.delete({
         where: { id: input.id },

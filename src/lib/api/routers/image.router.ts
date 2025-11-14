@@ -213,9 +213,16 @@ export const imageRouter = createTRPCRouter({
         });
       }
 
-      // TODO: Delete file from Supabase Storage
-      // const path = extractPathFromUrl(image.url);
-      // await deleteFile("product-images", path);
+      // Delete file from Supabase Storage
+      try {
+        const { extractPathFromUrl } = await import("@/lib/storage");
+        const { deleteFile } = await import("@/lib/storage");
+        const path = extractPathFromUrl(image.url);
+        await deleteFile("product-images", path);
+      } catch (error) {
+        // Log error but don't fail deletion if storage deletion fails
+        console.error("Failed to delete file from storage:", error);
+      }
 
       await ctx.db.projectImage.delete({
         where: { id: input.id },

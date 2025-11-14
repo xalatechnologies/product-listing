@@ -197,3 +197,32 @@ export async function deleteProjectFiles(
     }
   }
 }
+
+/**
+ * Extract storage path from Supabase Storage URL
+ * @param url - Full Supabase Storage URL
+ * @returns Storage path (e.g., "userId/projectId/filename.jpg")
+ */
+export function extractPathFromUrl(url: string): string {
+  try {
+    // Supabase Storage URLs format: https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
+    const urlObj = new URL(url);
+    const pathParts = urlObj.pathname.split("/");
+    const bucketIndex = pathParts.indexOf("public");
+    
+    if (bucketIndex === -1 || bucketIndex === pathParts.length - 1) {
+      throw new Error("Invalid Supabase Storage URL format");
+    }
+    
+    // Extract path after "public/<bucket>/"
+    const path = pathParts.slice(bucketIndex + 2).join("/");
+    return path;
+  } catch (error) {
+    // If URL parsing fails, try to extract path manually
+    const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)$/);
+    if (match) {
+      return match[1];
+    }
+    throw new Error(`Failed to extract path from URL: ${url}`);
+  }
+}
