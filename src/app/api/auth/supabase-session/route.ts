@@ -56,15 +56,36 @@ export async function POST(request: Request) {
       },
     });
 
-    // Set session cookie
-    const response = NextResponse.json({ success: true });
-    response.cookies.set("next-auth.session-token", sessionToken, {
+    // Set session cookie (NextAuth uses different cookie names in dev vs prod)
+    const cookieName = 
+      process.env.NODE_ENV === "production"
+        ? "__Secure-next-auth.session-token"
+        : "next-auth.session-token";
+
+    const response = NextResponse.json({ 
+      success: true,
+      userId: prismaUser.id,
+      email: prismaUser.email 
+    });
+    
+    response.cookies.set(cookieName, sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: "/",
     });
+
+    // Also set the non-secure version for dev
+    if (process.env.NODE_ENV !== "production") {
+      response.cookies.set("next-auth.session-token", sessionToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
+    }
 
     return response;
   } catch (error: any) {

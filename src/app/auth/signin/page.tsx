@@ -76,14 +76,19 @@ function SignInContent() {
               body: JSON.stringify({ 
                 accessToken: result.session.access_token 
               }),
+              credentials: "include", // Important: include cookies
             });
 
             if (!sessionResponse.ok) {
-              console.warn("Failed to create NextAuth session");
+              const errorData = await sessionResponse.json().catch(() => ({}));
+              console.error("Failed to create NextAuth session:", errorData);
               toast.error("Session creation failed. Please try again.");
               setIsLoading(false);
               return;
             }
+
+            const sessionData = await sessionResponse.json();
+            console.log("Session created successfully:", sessionData);
           } catch (sessionError) {
             console.error("Session creation error:", sessionError);
             toast.error("Failed to create session. Please try again.");
@@ -93,9 +98,10 @@ function SignInContent() {
 
           toast.success("Signed in successfully!");
           
-          // Redirect to dashboard
-          router.push(callbackUrl);
-          router.refresh(); // Refresh to update session state
+          // Force redirect using window.location for reliability
+          setTimeout(() => {
+            window.location.href = callbackUrl;
+          }, 500);
         } catch (error: any) {
           toast.error(error.message || "Invalid email or password");
           setIsLoading(false);
