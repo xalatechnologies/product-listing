@@ -8,6 +8,7 @@ import Image from "next/image";
 
 export const EnhancedHero = (): React.ReactElement => {
   const [listingsCount, setListingsCount] = useState(87);
+  const [particles, setParticles] = useState<Array<{ left: string; top: string; duration: number; delay: number }>>([]);
 
   // Animated counter for listings created
   useEffect(() => {
@@ -15,6 +16,18 @@ export const EnhancedHero = (): React.ReactElement => {
       setListingsCount((prev) => (prev >= 95 ? 87 : prev + 1));
     }, 3000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Generate particle positions only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 8 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        duration: 3 + Math.random() * 2,
+        delay: Math.random() * 5,
+      }))
+    );
   }, []);
   return (
     <section className="relative bg-gradient-to-b from-amber-50 via-yellow-50/30 to-white dark:from-gray-900 dark:via-amber-950/20 dark:to-gray-800 pt-24 pb-16 overflow-hidden">
@@ -71,13 +84,13 @@ export const EnhancedHero = (): React.ReactElement => {
         />
 
         {/* Floating Particles - Subtle golden sparkles */}
-        {[...Array(8)].map((_, i) => (
+        {particles.map((particle, i) => (
           <motion.div
             key={i}
             className="absolute w-1.5 h-1.5 bg-amber-400/30 rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: particle.left,
+              top: particle.top,
             }}
             animate={{
               y: [0, -30, 0],
@@ -85,9 +98,9 @@ export const EnhancedHero = (): React.ReactElement => {
               scale: [0, 1, 0],
             }}
             transition={{
-              duration: 3 + Math.random() * 2,
+              duration: particle.duration,
               repeat: Infinity,
-              delay: Math.random() * 5,
+              delay: particle.delay,
               ease: "easeInOut",
             }}
           />

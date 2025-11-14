@@ -1,25 +1,41 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
+interface Orb {
+  id: number;
+  left: string;
+  top: string;
+  size: number;
+  duration: number;
+  delay: number;
+  color: string;
+}
+
 export const AnimatedBackground = (): React.ReactElement => {
-  // Generate random positions for floating orbs
-  const orbs = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    top: `${Math.random() * 100}%`,
-    size: Math.random() * 200 + 100,
-    duration: Math.random() * 20 + 15,
-    delay: Math.random() * 5,
-    color: [
-      "bg-orange-400/10",
-      "bg-blue-400/10",
-      "bg-green-400/10",
-      "bg-yellow-400/10",
-      "bg-red-400/10",
-    ][Math.floor(Math.random() * 5)],
-  }));
+  const [orbs, setOrbs] = useState<Orb[]>([]);
+
+  // Generate random positions for floating orbs only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setOrbs(
+      Array.from({ length: 20 }, (_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        size: Math.random() * 200 + 100,
+        duration: Math.random() * 20 + 15,
+        delay: Math.random() * 5,
+        color: [
+          "bg-orange-400/10",
+          "bg-blue-400/10",
+          "bg-green-400/10",
+          "bg-yellow-400/10",
+          "bg-red-400/10",
+        ][Math.floor(Math.random() * 5)],
+      }))
+    );
+  }, []);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
