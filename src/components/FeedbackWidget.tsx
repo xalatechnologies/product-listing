@@ -26,12 +26,24 @@ export function FeedbackWidget({ className }: FeedbackWidgetProps) {
     setIsSubmitting(true);
 
     try {
-      // TODO: Implement feedback submission endpoint
-      // For now, log to console
-      console.log("Feedback submitted:", feedback);
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: feedback,
+          metadata: {
+            page: window.location.pathname,
+            timestamp: new Date().toISOString(),
+          },
+        }),
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to submit feedback");
+      }
 
       toast.success("Thank you for your feedback!");
       setFeedback("");

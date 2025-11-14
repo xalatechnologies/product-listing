@@ -29,6 +29,7 @@ model User {
   subscriptions Subscription[]
   apiKeys       ApiKey[]
   credits       CreditTransaction[]
+  feedback      Feedback[]
 }
 
 model Account {
@@ -260,4 +261,28 @@ model ApiKey {
 
   @@index([userId])
   @@index([key])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String? // Optional - allow anonymous feedback
+  email     String? // Optional - for anonymous feedback
+  message   String
+  status    FeedbackStatus @default(PENDING)
+  metadata  Json? // Additional context (page URL, user agent, etc.)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  ARCHIVED
 }
