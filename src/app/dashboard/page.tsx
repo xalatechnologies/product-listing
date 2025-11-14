@@ -18,21 +18,33 @@ import {
   Palette,
   TrendingUp,
   FileText,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { CreditBalance } from "@/components/CreditBalance";
 import { ProjectStatus } from "@prisma/client";
 
 type SortOption = "newest" | "oldest" | "name-asc" | "name-desc";
+
+const ITEMS_PER_PAGE = 12;
 
 export default function DashboardPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | "ALL">("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: projects, isLoading } = api.project.list.useQuery();
+  // Fetch projects with pagination (fetch more than needed for client-side filtering)
+  const { data: projectsData, isLoading } = api.project.list.useQuery({
+    limit: 100, // Fetch up to 100 projects for client-side filtering
+    offset: 0,
+  });
+
+  const projects = projectsData?.projects || [];
+  const totalProjects = projectsData?.total || 0;
   const { data: credits } = api.subscription.getCredits.useQuery(undefined, {
     refetchInterval: 30000, // Poll every 30 seconds
   });
@@ -78,16 +90,29 @@ export default function DashboardPage() {
     return sorted;
   }, [projects, searchQuery, statusFilter, sortBy]);
 
-  // Calculate statistics
-  const stats = useMemo(() => {
-    if (!projects) return { totalProjects: 0, totalImages: 0, totalGenerated: 0 };
+  // Paginate filtered and sorted projects
+  const paginatedProjects = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredAndSortedProjects.slice(startIndex, endIndex);
+  }, [filteredAndSortedProjects, currentPage]);
 
-    const totalProjects = projects.length;
+  const totalPages = Math.ceil(filteredAndSortedProjects.length / ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortBy]);
+
+  // Calculate statistics from all fetched projects
+  const stats = useMemo(() => {
+    if (!projects || projects.length === 0) return { totalProjects: 0, totalImages: 0, totalGenerated: 0 };
+
     const totalImages = projects.reduce((sum, p) => sum + p._count.productImages, 0);
     const totalGenerated = projects.reduce((sum, p) => sum + p._count.generatedImages, 0);
 
     return { totalProjects, totalImages, totalGenerated };
-  }, [projects]);
+  }, [projects, totalProjects]);
 
   // Get recent projects (last 5)
   const recentProjects = useMemo(() => {
@@ -356,8 +381,9 @@ export default function DashboardPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedProjects.map((project) => (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedProjects.map((project) => (
             <Link
               key={project.id}
               href={`/projects/${project.id}`}
@@ -406,8 +432,65 @@ export default function DashboardPage() {
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to{" "}
+                {Math.min(currentPage * ITEMS_PER_PAGE, filteredAndSortedProjects.length)} of{" "}
+                {filteredAndSortedProjects.length} projects
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum: number;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md ${
+                          currentPage === pageNum
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -56,27 +56,52 @@ export const projectRouter = createTRPCRouter({
     }),
 
   /**
-   * List all projects for the current user
+   * List all projects for the current user with pagination support
    */
-  list: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.session.user.id;
+  list: protectedProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().min(1).max(100).default(20),
+          offset: z.number().min(0).default(0),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const limit = input?.limit ?? 20;
+      const offset = input?.offset ?? 0;
 
-    const projects = await ctx.db.project.findMany({
-      where: { userId },
-      orderBy: { updatedAt: "desc" },
-      include: {
-        brandKit: true,
-        _count: {
-          select: {
-            productImages: true,
-            generatedImages: true,
+      // Get total count for pagination
+      const total = await ctx.db.project.count({
+        where: { userId },
+      });
+
+      // Get paginated projects
+      const projects = await ctx.db.project.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        take: limit,
+        skip: offset,
+        include: {
+          brandKit: true,
+          _count: {
+            select: {
+              productImages: true,
+              generatedImages: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    return projects;
-  }),
+      return {
+        projects,
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      };
+    }),
 
   /**
    * Get a single project by ID
