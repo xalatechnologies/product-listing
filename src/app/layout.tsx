@@ -7,6 +7,8 @@ import ClientProvider from "@/components/ClientProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ThemeAwareToast } from "@/components/theme/ThemeAwareToast";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { FeedbackWidget } from "@/components/FeedbackWidget";
 
 export const metadata: Metadata = {
   title: "ListingAI - AI-Powered Product Listings for Amazon, Shopify, eBay & More",
@@ -35,8 +37,10 @@ export default function RootLayout({
           <ThemeProvider defaultTheme="system" enableSystem>
             <ClientProvider>
               <TRPCReactProvider>
+                <AnalyticsProvider />
                 {children}
                 <ThemeAwareToast />
+                <FeedbackWidget />
               </TRPCReactProvider>
             </ClientProvider>
           </ThemeProvider>
