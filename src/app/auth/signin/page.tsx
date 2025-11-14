@@ -43,33 +43,33 @@ function SignInContent() {
     try {
       if (usePassword) {
         // Use Supabase password authentication
-        const { data, error } = await signInWithPassword(email, password);
-        
-        if (error) {
+        try {
+          const result = await signInWithPassword(email, password);
+          
+          // Sync user to Prisma if needed
+          if (result.user) {
+            try {
+              const response = await fetch("/api/auth/sync-user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: result.user.id }),
+              });
+              
+              if (!response.ok) {
+                console.warn("Failed to sync user to Prisma");
+              }
+            } catch (syncError) {
+              console.warn("User sync error:", syncError);
+            }
+          }
+
+          toast.success("Signed in successfully!");
+          router.push(callbackUrl);
+        } catch (error: any) {
           toast.error(error.message || "Invalid email or password");
           setIsLoading(false);
           return;
         }
-
-        // Sync user to Prisma if needed
-        if (data.user) {
-          try {
-            const response = await fetch("/api/auth/sync-user", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userId: data.user.id }),
-            });
-            
-            if (!response.ok) {
-              console.warn("Failed to sync user to Prisma");
-            }
-          } catch (syncError) {
-            console.warn("User sync error:", syncError);
-          }
-        }
-
-        toast.success("Signed in successfully!");
-        router.push(callbackUrl);
       } else {
         // Use NextAuth magic link
         const result = await signIn("email", { 
