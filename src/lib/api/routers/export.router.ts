@@ -182,6 +182,138 @@ export const exportRouter = createTRPCRouter({
     }),
 
   /**
+   * Export complete pack (listing images + A+ modules) as unified ZIP
+   */
+  exportCompletePack: protectedProcedure
+    .input(z.object({
+      projectId: z.string(),
+      platform: z.enum(["amazon", "ebay", "etsy", "shopify"]).default("amazon"),
+      includeAPlus: z.boolean().default(true),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+        include: {
+          generatedImages: {
+            orderBy: [
+              { type: "asc" },
+              { createdAt: "asc" },
+            ],
+          },
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      if (!project.generatedImages || project.generatedImages.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No generated images found for this project",
+        });
+      }
+
+      const spec = getMarketplaceSpec(input.platform);
+      const imageFiles: Array<{ filename: string; buffer: Buffer }> = [];
+
+      // Export listing images
+      const mainImage = project.generatedImages.find((img: { type: ImageType }) => img.type === ImageType.MAIN_IMAGE);
+      const additionalImages = project.generatedImages.filter((img: { type: ImageType }) => img.type !== ImageType.MAIN_IMAGE);
+
+      // Process main image first
+      if (mainImage) {
+        const originalBuffer = await downloadImage(mainImage.url);
+        const resizedBuffer = await resizeForMarketplace(originalBuffer, spec, true);
+        const filename = formatFilename(spec.mainImage.naming, 0, project.productName);
+        imageFiles.push({ filename, buffer: resizedBuffer });
+      }
+
+      // Process additional images
+      for (let i = 0; i < additionalImages.length; i++) {
+        const image = additionalImages[i]!;
+        const originalBuffer = await downloadImage(image.url);
+        const resizedBuffer = await resizeForMarketplace(originalBuffer, spec, false);
+        const filename = formatFilename(spec.additionalImages.naming, i + 1, project.productName);
+        imageFiles.push({ filename, buffer: resizedBuffer });
+      }
+
+      // Export A+ modules if requested
+      if (input.includeAPlus) {
+        try {
+          const { exportAPlusContent } = await import("@/lib/aplus/export");
+          const aPlusResult = await exportAPlusContent({
+            projectId: input.projectId,
+            userId,
+            format: "png",
+          });
+
+          // Download A+ ZIP and extract to add individual modules
+          const aPlusZipResponse = await fetch(aPlusResult.downloadUrl);
+          const aPlusZipBuffer = Buffer.from(await aPlusZipResponse.arrayBuffer());
+
+          // For now, add the A+ ZIP as a separate file
+          // In production, you might want to extract and merge into main ZIP
+          imageFiles.push({
+            filename: `aplus-modules.zip`,
+            buffer: aPlusZipBuffer,
+          });
+        } catch (error) {
+          console.error("Failed to include A+ content in export:", error);
+          // Continue without A+ content if it fails
+        }
+      }
+
+      // Create unified ZIP file
+      const zipBuffer = await createZipFromBuffers(
+        imageFiles,
+        `complete-pack-${input.platform}-${input.projectId}.zip`,
+      );
+
+      // Upload ZIP to Supabase Storage
+      const zipPath = `${userId}/${input.projectId}/complete-pack-${input.platform}-${Date.now()}.zip`;
+      await uploadFile("exports", zipPath, zipBuffer, {
+        contentType: "application/zip",
+        upsert: false,
+      });
+
+      // Get signed download URL
+      const downloadUrl = await getSignedUrl("exports", zipPath, 3600);
+
+      // Save export record
+      const platformEnum: ExportPlatform = input.platform.toUpperCase() as ExportPlatform;
+      const exportRecord = await ctx.db.export.create({
+        data: {
+          userId,
+          projectId: input.projectId,
+          platform: platformEnum,
+          downloadUrl,
+          filePath: zipPath,
+          fileSize: zipBuffer.length,
+          imageCount: imageFiles.length,
+        },
+      });
+
+      return {
+        downloadUrl,
+        fileSize: zipBuffer.length,
+        imageCount: imageFiles.length,
+        platform: input.platform,
+        exportId: exportRecord.id,
+        includesAPlus: input.includeAPlus,
+      };
+    }),
+
+  /**
    * Get export history for a project
    */
   getHistory: protectedProcedure

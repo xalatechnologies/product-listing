@@ -122,20 +122,23 @@ export const imageRouter = createTRPCRouter({
         },
       });
 
-      // Queue Inngest job for image generation
-      const { inngest } = await import("@/../inngest.config");
-      const eventId = await inngest.send({
-        name: "image/generate",
-        data: {
-          projectId: input.projectId,
-          userId,
-          imageType: input.type,
-          style: input.style,
-        },
-      });
+      // Queue job in Supabase job_queue table
+      const job = await ctx.db.$queryRawUnsafe<Array<{ id: string }>>(`
+        INSERT INTO job_queue (job_type, payload, user_id)
+        VALUES (
+          'generate-image',
+          $1::jsonb,
+          $2::text
+        )
+        RETURNING id
+      `, JSON.stringify({
+        projectId: input.projectId,
+        imageType: input.type,
+        style: input.style,
+      }), userId);
 
       return {
-        jobId: eventId.ids[0],
+        jobId: job[0]?.id || "unknown",
         status: "queued",
       };
     }),
@@ -241,6 +244,88 @@ export const imageRouter = createTRPCRouter({
       });
 
       return { success: true };
+    }),
+
+  /**
+   * Generate complete listing pack (all images + optional A+ content)
+   */
+  generateCompletePack: protectedProcedure
+    .input(z.object({
+      projectId: z.string(),
+      includeAPlus: z.boolean().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Calculate total credits required
+      const imageCredits = 43; // 5+10+5+8+10+5 = 43 credits for all 6 image types
+      const aPlusCredits = input.includeAPlus ? 20 : 0; // Standard A+ content
+      const totalCredits = imageCredits + aPlusCredits;
+
+      // Check user has enough credits
+      const creditResult = await ctx.db.creditTransaction.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      });
+
+      const balance = creditResult._sum.amount || 0;
+      if (balance < totalCredits) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Insufficient credits. You have ${balance} credits but need ${totalCredits} for complete pack generation. Please purchase more credits.`,
+        });
+      }
+
+      // Deduct credits before generation
+      await ctx.db.creditTransaction.create({
+        data: {
+          userId,
+          amount: -totalCredits,
+          type: CreditType.USAGE,
+          description: `Generate complete listing pack for project ${input.projectId}${input.includeAPlus ? " (with A+ content)" : ""}`,
+          metadata: {
+            projectId: input.projectId,
+            packType: "complete",
+            includeAPlus: input.includeAPlus,
+          },
+        },
+      });
+
+      // Queue complete pack generation job in Supabase job_queue
+      const job = await ctx.db.$queryRawUnsafe<Array<{ id: string }>>(`
+        INSERT INTO job_queue (job_type, payload, user_id, max_retries)
+        VALUES (
+          'generate-complete-pack',
+          $1::jsonb,
+          $2::text,
+          3
+        )
+        RETURNING id
+      `, JSON.stringify({
+        projectId: input.projectId,
+        includeAPlus: input.includeAPlus,
+      }), userId);
+
+      return {
+        jobId: job[0]?.id || "unknown",
+        status: "queued",
+        message: `Complete pack generation started. This will generate all listing images${input.includeAPlus ? " and A+ content" : ""}.`,
+      };
     }),
 
   /**

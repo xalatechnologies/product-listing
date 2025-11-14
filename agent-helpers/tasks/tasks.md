@@ -18,7 +18,7 @@
 ### Core Infrastructure
 - [x] Set up Stripe integration (webhook handler, subscription management) - Structure complete, needs testing
 - [x] Configure S3/Supabase Storage for file uploads - Complete with utilities
-- [ ] Set up Inngest for background jobs - Structure ready, needs configuration
+- [x] Set up Supabase job queue for background jobs - Migration created, Edge Function created, routers updated
 - [x] Create base tRPC router structure - All routers created and implemented
 
 ## Phase 2: Project Management ✅ COMPLETE
@@ -62,11 +62,25 @@
 - [x] Comparison chart generator - Complete (comparisonChart.ts)
 - [x] Dimension diagram generator - Complete (dimensionDiagram.ts)
 
-### Image Generation Queue
-- [x] Set up Inngest function for image generation - Complete (generateImages.ts Inngest function)
+### Image Generation Queue (Migrated to Supabase) ✅ COMPLETE
+- [x] Set up Supabase job queue system - Complete (job_queue table migration created)
+- [x] Create Supabase Edge Function for job processing - Complete (process-jobs/index.ts)
+- [x] Create Next.js API endpoints for job processing - Complete (/api/process-image, /api/process-complete-pack, /api/process-aplus)
+- [x] Update routers to use Supabase queue - Complete (image.router.ts updated to use job_queue)
+- [x] Create pg_cron setup script - Complete (setup-job-processor.sql)
+- [x] Add job queue helper functions - Complete (get_next_job, mark_job_processing, mark_job_completed, mark_job_failed)
 - [x] Create job status tracking - Complete (project status updates: PROCESSING, COMPLETED, FAILED)
 - [x] Build progress indicator UI - Complete (status badges, realtime updates via Supabase)
-- [x] Handle generation errors and retries - Complete (error handling in Inngest function, status set to FAILED)
+- [x] Handle generation errors and retries - Complete (automatic retry logic in database functions)
+- [x] Implement chunked processing for complete pack - Complete (queues individual images to avoid timeout)
+- [x] Add A+ content generation endpoint - Complete (/api/process-aplus)
+- [x] Add complete pack processing endpoint - Complete (/api/process-complete-pack)
+- [x] Create comprehensive setup documentation - Complete (QUICK-SETUP-SUPABASE-QUEUE.md, SUPABASE-MIGRATION-GUIDE.md)
+- [ ] Run database migration in Supabase - Pending (run create_job_queue migration in Supabase SQL Editor)
+- [ ] Deploy Edge Function to Supabase - Pending (deploy process-jobs function via CLI or Dashboard)
+- [ ] Set up pg_cron schedule in Supabase - Pending (run setup-job-processor.sql with correct values)
+- [ ] Test job queue processing end-to-end - Pending (requires running app and Supabase setup)
+- [ ] Remove Inngest dependencies (optional) - Pending (after Supabase queue is verified working)
 
 ## Phase 4: Brand Kit System ✅ COMPLETE
 
@@ -234,7 +248,7 @@
 **In Progress:**
 - 🚧 Database migration (pending database setup)
 - 🚧 Authentication testing (requires running app)
-- 🚧 Inngest configuration (structure ready, needs testing)
+- 🚧 Supabase job queue deployment (code complete, needs migration + Edge Function deployment + pg_cron setup)
 
 **Pending:**
 - ⏳ Testing with running app (requires app deployment)

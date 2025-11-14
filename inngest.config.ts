@@ -25,6 +25,13 @@ export type AppEvents = {
       style?: string;
     };
   };
+  "pack/generate-complete": {
+    data: {
+      projectId: string;
+      userId: string;
+      includeAPlus?: boolean;
+    };
+  };
 };
 
 // Initialize Inngest with typed events

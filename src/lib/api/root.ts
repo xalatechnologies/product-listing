@@ -6,6 +6,7 @@ import { subscriptionRouter } from "./routers/subscription.router";
 import { aPlusRouter } from "./routers/aPlus.router";
 import { exportRouter } from "./routers/export.router";
 import { userRouter } from "./routers/user.router";
+import { jobRouter } from "./routers/job.router";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   aPlus: aPlusRouter,
   export: exportRouter,
   user: userRouter,
+  job: jobRouter,
 });
 
 // export type definition of API

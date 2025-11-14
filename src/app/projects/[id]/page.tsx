@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
 import { subscribeToProjectStatus, subscribeToGeneratedImages } from "@/lib/supabase/realtime";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { JobStatus } from "@/components/JobStatus";
 
 // Dynamic import for code splitting
 const ExportSelector = dynamic(() => import("@/components/ExportSelector").then((mod) => ({ default: mod.ExportSelector })), {
@@ -36,6 +37,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const router = useRouter();
   const projectId = resolvedParams.id;
   const [showAPlusModal, setShowAPlusModal] = useState(false);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   const { data: project, isLoading, refetch: refetchProject } = api.project.get.useQuery({
     id: projectId,
@@ -73,15 +75,31 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   }, [projectId, refetchProject, refetchGeneratedImages]);
 
   const generateImage = api.image.generate.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      setActiveJobId(data.jobId);
       toast.success("Image generation started! Check back in a few moments.");
-      // Refetch generated images after a delay
+      // Refetch generated images after completion
       setTimeout(() => {
-        window.location.reload();
-      }, 3000);
+        refetchGeneratedImages();
+      }, 10000);
     },
     onError: (error) => {
       toast.error(error.message || "Failed to generate image");
+    },
+  });
+
+  const generateCompletePack = api.image.generateCompletePack.useMutation({
+    onSuccess: (data) => {
+      setActiveJobId(data.jobId);
+      toast.success(data.message || "Complete pack generation started! This may take a few minutes.");
+      // Refetch after a delay
+      setTimeout(() => {
+        refetchProject();
+        refetchGeneratedImages();
+      }, 5000);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to generate complete pack");
     },
   });
 
@@ -188,7 +206,7 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       </div>
 
       {/* Status Badge */}
-      <div className="mb-8">
+      <div className="mb-8 flex items-center gap-4">
         <span
           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
             project.status === "COMPLETED"
@@ -202,6 +220,20 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
         >
           {project.status}
         </span>
+        {activeJobId && (
+          <JobStatus
+            jobId={activeJobId}
+            onComplete={() => {
+              refetchProject();
+              refetchGeneratedImages();
+              setActiveJobId(null);
+            }}
+            onError={(error) => {
+              toast.error(`Job failed: ${error}`);
+              setActiveJobId(null);
+            }}
+          />
+        )}
       </div>
 
       {/* Product Images Section */}
@@ -257,6 +289,34 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Upload product images above, then generate your listing images
             </p>
+            
+            {/* Generate Complete Pack Button */}
+            <div className="mb-8">
+              <button
+                onClick={() => {
+                  if (!productImages || productImages.length === 0) {
+                    toast.error("Please upload at least one product image first");
+                    return;
+                  }
+                  generateCompletePack.mutate({
+                    projectId,
+                    includeAPlus: false,
+                  });
+                }}
+                disabled={generateCompletePack.isPending || !productImages || productImages.length === 0}
+                className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-base font-semibold text-white hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+              >
+                <Sparkles className="h-5 w-5" />
+                {generateCompletePack.isPending ? "Generating Complete Pack..." : "Generate Complete Pack (All Images)"}
+              </button>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Generates all 6 listing images at once (43 credits)
+              </p>
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Or generate individually:</p>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <button
                 onClick={() => {
