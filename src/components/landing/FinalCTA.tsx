@@ -5,8 +5,17 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle2, Clock, Zap, TrendingUp, Users } from "lucide-react";
 
+interface FloatingShape {
+  left: string;
+  top: string;
+  x: number[];
+  y: number[];
+  duration: number;
+}
+
 export const FinalCTA = (): React.ReactElement => {
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 45, seconds: 30 });
+  const [shapes, setShapes] = useState<FloatingShape[]>([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,6 +33,19 @@ export const FinalCTA = (): React.ReactElement => {
 
     return () => clearInterval(timer);
   }, []);
+
+  // Generate floating shape positions only on client side to avoid hydration mismatch
+  useEffect(() => {
+    setShapes(
+      Array.from({ length: 6 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        x: [0, Math.random() * 100 - 50, 0],
+        y: [0, Math.random() * 100 - 50, 0],
+        duration: 8 + Math.random() * 4,
+      }))
+    );
+  }, []);
   return (
     <section className="py-24 bg-gradient-to-br from-amber-600 via-yellow-600 to-amber-700 relative overflow-hidden">
       {/* Background Pattern */}
@@ -34,22 +56,22 @@ export const FinalCTA = (): React.ReactElement => {
       </div>
 
       {/* Floating Shapes */}
-      {[...Array(6)].map((_, i) => (
+      {shapes.map((shape, i) => (
         <motion.div
           key={i}
           className="absolute w-32 h-32 bg-white/5 rounded-full blur-2xl"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            left: shape.left,
+            top: shape.top,
           }}
           animate={{
-            x: [0, Math.random() * 100 - 50, 0],
-            y: [0, Math.random() * 100 - 50, 0],
+            x: shape.x,
+            y: shape.y,
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3],
           }}
           transition={{
-            duration: 8 + Math.random() * 4,
+            duration: shape.duration,
             repeat: Infinity,
             ease: "easeInOut",
             delay: i * 0.5,
