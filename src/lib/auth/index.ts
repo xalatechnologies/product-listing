@@ -9,6 +9,7 @@ import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import AppleProvider from "next-auth/providers/apple";
+import { Resend } from "resend";
 
 export enum UserRole {
   user = "user",
@@ -60,19 +61,55 @@ declare module "next-auth" {
   }
 }
 
+// Initialize Resend for email sending
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     EmailProvider({
-      server: {
-        host: "smtp.resend.com",
-        port: 465,
-        auth: {
-          user: "resend",
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
+      server: process.env.EMAIL_SERVER || "",
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      // Use Resend API if available, otherwise fall back to SMTP
+      sendVerificationRequest: resend
+        ? async ({ identifier: email, url, provider }) => {
+            try {
+              await resend.emails.send({
+                from: provider.from as string,
+                to: email,
+                subject: "Sign in to ListingAI",
+                html: `
+                  <!DOCTYPE html>
+                  <html>
+                    <head>
+                      <meta charset="utf-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>Sign in to ListingAI</title>
+                    </head>
+                    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+                      <div style="background: linear-gradient(135deg, #f59e0b 0%, #3b82f6 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                        <h1 style="color: white; margin: 0; font-size: 28px;">Sign in to ListingAI</h1>
+                      </div>
+                      <div style="background: #ffffff; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                        <p style="font-size: 16px; margin-bottom: 20px;">Click the button below to sign in to your account:</p>
+                        <a href="${url}" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #3b82f6 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; margin: 20px 0;">Sign In</a>
+                        <p style="font-size: 14px; color: #666; margin-top: 30px;">Or copy and paste this link into your browser:</p>
+                        <p style="font-size: 12px; color: #999; word-break: break-all; background: #f5f5f5; padding: 10px; border-radius: 4px; margin-top: 10px;">${url}</p>
+                        <p style="font-size: 12px; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">This link will expire in 24 hours. If you didn't request this email, you can safely ignore it.</p>
+                      </div>
+                    </body>
+                  </html>
+                `,
+                text: `Sign in to ListingAI\n\nClick this link to sign in:\n${url}\n\nThis link will expire in 24 hours.`,
+              });
+            } catch (error) {
+              console.error("Failed to send email:", error);
+              throw new Error("Failed to send email");
+            }
+          }
+        : undefined,
     }),
     // OAuth providers (only enabled if credentials are configured)
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET

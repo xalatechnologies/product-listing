@@ -3,9 +3,10 @@
 import React, { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Mail, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Mail, Loader2, Sparkles, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { signInWithPassword } from "@/lib/auth/supabase";
 
 // Check if OAuth providers are available
 const hasGoogleAuth = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -16,6 +17,9 @@ const hasEbayAuth = !!process.env.NEXT_PUBLIC_EBAY_CLIENT_ID;
 
 function SignInContent() {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [usePassword, setUsePassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -29,25 +33,62 @@ function SignInContent() {
       return;
     }
 
+    if (usePassword && !password) {
+      toast.error("Please enter your password");
+      return;
+    }
+
     setIsLoading(true);
     
     try {
-      const result = await signIn("email", { 
-        email, 
-        callbackUrl,
-        redirect: false,
-      });
+      if (usePassword) {
+        // Use Supabase password authentication
+        const { data, error } = await signInWithPassword(email, password);
+        
+        if (error) {
+          toast.error(error.message || "Invalid email or password");
+          setIsLoading(false);
+          return;
+        }
 
-      if (result?.error) {
-        toast.error("Failed to send sign-in link. Please try again.");
-        setIsLoading(false);
+        // Sync user to Prisma if needed
+        if (data.user) {
+          try {
+            const response = await fetch("/api/auth/sync-user", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: data.user.id }),
+            });
+            
+            if (!response.ok) {
+              console.warn("Failed to sync user to Prisma");
+            }
+          } catch (syncError) {
+            console.warn("User sync error:", syncError);
+          }
+        }
+
+        toast.success("Signed in successfully!");
+        router.push(callbackUrl);
       } else {
-        toast.success("Check your email for the sign-in link!");
-        router.push("/auth/verify");
+        // Use NextAuth magic link
+        const result = await signIn("email", { 
+          email, 
+          callbackUrl,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          toast.error("Failed to send sign-in link. Please try again.");
+          setIsLoading(false);
+        } else {
+          toast.success("Check your email for the sign-in link!");
+          router.push("/auth/verify");
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign in error:", error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error.message || "Something went wrong. Please try again.");
       setIsLoading(false);
     }
   };
@@ -80,6 +121,38 @@ function SignInContent() {
 
         {/* Sign In Form */}
         <div className="rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 p-8 shadow-xl">
+          {/* Toggle between password and magic link */}
+          <div className="mb-6 flex gap-2 rounded-lg bg-gray-100 dark:bg-gray-700 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setUsePassword(true);
+                setPassword("");
+              }}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                usePassword
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+              }`}
+            >
+              Password
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setUsePassword(false);
+                setPassword("");
+              }}
+              className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                !usePassword
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+              }`}
+            >
+              Magic Link
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -103,25 +176,85 @@ function SignInContent() {
                   placeholder="you@example.com"
                 />
               </div>
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            </div>
+
+            {usePassword && (
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    required={usePassword}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    className="block w-full pl-10 pr-10 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Sign in with your password
+                  </p>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {!usePassword && (
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 We'll send you a magic link to sign in securely
               </p>
-            </div>
+            )}
 
             <button
               type="submit"
-              disabled={isLoading || !email}
+              disabled={isLoading || !email || (usePassword && !password)}
               className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-blue-600 px-4 py-3 text-white font-semibold shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  Sending magic link...
+                  {usePassword ? "Signing in..." : "Sending magic link..."}
                 </>
               ) : (
                 <>
-                  <Mail className="h-5 w-5" />
-                  Send magic link
+                  {usePassword ? (
+                    <>
+                      <Lock className="h-5 w-5" />
+                      Sign in
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-5 w-5" />
+                      Send magic link
+                    </>
+                  )}
                 </>
               )}
             </button>
