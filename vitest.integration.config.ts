@@ -11,6 +11,7 @@ export default defineConfig({
     include: ['**/*.integration.test.{ts,tsx}'],
     exclude: ['node_modules', 'e2e', '**/*.config.*', '.next'],
     testTimeout: 30000, // 30 seconds timeout for integration tests
+    maxWorkers: 1, // Run tests sequentially to avoid database conflicts
   },
   resolve: {
     alias: {

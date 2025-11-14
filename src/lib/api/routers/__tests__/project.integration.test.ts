@@ -123,21 +123,17 @@ describe('Project Router Integration Tests', () => {
       expect(result?.name).toBe('Test Project');
     });
 
-    it('should return null for non-existent project', async () => {
+    it('should return error for non-existent project', async () => {
       const caller = createAuthenticatedCaller(userId);
 
-      const result = await caller.project.get({ id: 'non-existent-id' });
-
-      expect(result).toBeNull();
+      await expect(caller.project.get({ id: 'non-existent-id' })).rejects.toThrow();
     });
 
     it('should not return other user project', async () => {
       const caller = createAuthenticatedCaller(userId);
       const otherProject = await createTestProject(otherUserId, { name: 'Other Project' });
 
-      const result = await caller.project.get({ id: otherProject.id });
-
-      expect(result).toBeNull();
+      await expect(caller.project.get({ id: otherProject.id })).rejects.toThrow();
     });
 
     it('should fail when unauthenticated', async () => {
@@ -170,7 +166,8 @@ describe('Project Router Integration Tests', () => {
         status: ProjectStatus.PROCESSING,
       });
 
-      expect(updated.status).toBe(ProjectStatus.PROCESSING);
+      expect(updated).toBeDefined();
+      expect(updated?.status).toBe(ProjectStatus.PROCESSING);
     });
 
     it('should not update other user project', async () => {
@@ -206,9 +203,8 @@ describe('Project Router Integration Tests', () => {
 
       expect(result.success).toBe(true);
 
-      // Verify project is deleted
-      const deleted = await caller.project.get({ id: project.id });
-      expect(deleted).toBeNull();
+      // Verify project is deleted (should throw error)
+      await expect(caller.project.get({ id: project.id })).rejects.toThrow();
     });
 
     it('should not delete other user project', async () => {

@@ -500,3 +500,4 @@ Use semantic commit messages:
 - [Supabase Documentation](https://supabase.com/docs)
 - [Stripe Documentation](https://stripe.com/docs)
 
+

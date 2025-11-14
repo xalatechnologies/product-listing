@@ -24,6 +24,7 @@ const projectSchema = z.object({
 
 const updateProjectSchema = projectSchema.partial().extend({
   id: z.string(),
+  status: z.nativeEnum(ProjectStatus).optional(),
 });
 
 export const projectRouter = createTRPCRouter({

@@ -19,6 +19,15 @@ vi.mock('@/lib/storage', () => ({
   }),
 }));
 
+// Mock createImageBitmap for Node.js environment
+if (typeof global.createImageBitmap === 'undefined') {
+  (global as any).createImageBitmap = vi.fn().mockResolvedValue({
+    width: 1000,
+    height: 1000,
+    close: vi.fn(),
+  });
+}
+
 describe('Upload API Route Integration Tests', () => {
   let userId: string;
   let projectId: string;
