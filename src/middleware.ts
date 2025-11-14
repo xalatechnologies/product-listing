@@ -3,25 +3,23 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function middleware(req) {
-    // Log for debugging
-    console.log("Middleware - Token exists:", !!req.nextauth.token);
-    console.log("Middleware - Path:", req.nextUrl.pathname);
-    
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Check for token
-        const hasToken = !!token;
+        // Check for token first (primary method)
+        if (token) {
+          return true;
+        }
         
-        // Also check for session cookie as fallback
-        const hasSessionCookie = req.cookies.has("next-auth.session-token") || 
-                                 req.cookies.has("__Secure-next-auth.session-token");
+        // Fallback: check for session cookie
+        // This helps when session is manually created via Supabase auth
+        const hasSessionCookie = 
+          req.cookies.has("next-auth.session-token") || 
+          req.cookies.has("__Secure-next-auth.session-token");
         
-        console.log("Middleware auth check - Token:", hasToken, "Cookie:", hasSessionCookie);
-        
-        return hasToken || hasSessionCookie;
+        return hasSessionCookie;
       },
     },
     pages: {
