@@ -1,69 +1,54 @@
-# A Note from Kevin
+# 🚀 AI Product Listing & A+ Content Generator
 
-Hi! If you're at this repo, you've probably seen one of my AI coding videos and want to try some of those techniques yourself. If you have no clue what I'm talking about, here's a good video to show you my approach and how to best use this repo: https://youtu.be/gXmakVsIbF0
-
-You can also just use this with your own techniques, that's cool too.
-
-You can follow the Getting Started instructions below to start using this stack right away. I've found that using a checklist of tasks in the agent-helpers/tasks folder is a great way to make a lot of quick and effective progress with AI Coding. I personally use Cursor in Composer Agent mode with GPT-5, but feel free to use your AI coding tool of choice.
-
-If you need to create the checklist, here are some good prompts to use to go from a high-level idea to a full checklist of stories and tasks: https://chatgpt.com/share/67be0a59-e484-800d-a078-346b2c29d727
-
-You can also use the template in agent-helpers/.cursor-template.xml to generate the task list for existing repos. I personally use my open-source project PasteMax to convert the files into a pastable string, but repomix.com is a good option as well.
-
-# 🚀 Next.js Modern Stack Template
-
-A Next.js template that combines commonly used tools and libraries for building full-stack web applications. This stack is specifically designed to be optimized for AI coding assistants like Cursor.
+An AI-powered SaaS application for Amazon sellers to generate professional product listing images and A+ content in minutes, for 10× less cost than traditional agencies.
 
 ## 🎯 Overview
 
-This template includes [Next.js 14](https://nextjs.org/) with the App Router, [Supabase](https://supabase.com) for the database, [Resend](https://resend.com) for transactional emails, and optional integrations with various AI providers and AWS services.
+This application helps Amazon sellers create professional product listings by:
+- **AI Image Generation** - Generate Amazon-compliant main images, infographics, lifestyle shots, and more
+- **A+ Content Creation** - Automatically generate Amazon A+ content modules with AI
+- **Brand Consistency** - Apply brand kits to ensure consistent styling across all assets
+- **Multi-Platform Export** - Export optimized images for Amazon, eBay, Etsy, and Shopify
+- **Credit-Based Billing** - Flexible subscription plans and pay-as-you-go options
 
-> ⚠️ **Note**: This is my personal template with tools that I personally have experience with and think are solid options for building modern full-stack web application. Your preferences very likely differ, so feel free to fork and modify it for your own use. I won't be accepting pull requests for additional features, but I'll be happy to help you out if you have any questions.
+Built with Next.js 15, TypeScript, tRPC, Prisma, Supabase, and AI integrations.
 
 ## ✨ Features
 
-### 🏗️ Core Architecture
+### 🎨 Product Listing Features
 
-- [**Next.js 14**](https://nextjs.org/) - React framework with App Router
-- [**TypeScript**](https://www.typescriptlang.org/) - Type safety throughout
-- [**tRPC**](https://trpc.io/) - End-to-end type-safe APIs
-- [**Prisma**](https://www.prisma.io/) - Database ORM and schema management
-- [**NextAuth.js**](https://next-auth.js.org/) - Authentication with Prisma adapter
-- [**Supabase**](https://supabase.com) - Postgres database with realtime and auth
+- **Project Management** - Organize products into projects with metadata
+- **Image Upload** - Drag & drop product images with validation
+- **AI Image Generation** - 6 types of listing images:
+  - Main Image (1000x1000px, white background)
+  - Infographics (feature highlights)
+  - Feature Highlights (individual features)
+  - Lifestyle Images (product in use)
+  - Comparison Charts (vs competitors)
+  - Dimension Diagrams (technical specs)
+- **A+ Content Generator** - AI-powered Amazon A+ module generation
+- **Brand Kits** - Consistent branding across all assets
+- **Marketplace Export** - Optimized exports for Amazon, eBay, Etsy, Shopify
 
-### 🎨 UI & Styling
+### 🏗️ Technical Stack
 
-- [**Tailwind CSS**](https://tailwindcss.com/) - Utility-first CSS framework
-- [**Framer Motion**](https://www.framer.com/motion/) - Animation library
-- [**Lucide Icons**](https://lucide.dev/) - Icon set
-- Dark mode with Tailwind CSS
+- **Next.js 15** - React framework with App Router
+- **TypeScript** - Type safety throughout
+- **tRPC** - End-to-end type-safe APIs
+- **Prisma** - Database ORM with PostgreSQL
+- **NextAuth.js** - Authentication with email magic links
+- **Supabase** - Database, storage, and realtime
+- **Tailwind CSS** - Utility-first styling
+- **Framer Motion** - Animations
+- **Inngest** - Background job processing
+- **Stripe** - Subscription and payment processing
 
-### 🛠️ Development Tools
+### 🤖 AI Integrations
 
-- [**Storybook**](https://storybook.js.org/) - Component development environment
-- [**Geist Font**](https://vercel.com/font) - Typography by Vercel
-
-### 🤖 AI & Background Jobs
-
-- Multiple AI integrations available:
-  - [OpenAI](https://openai.com) - GPT-4 and o-series models
-  - [Anthropic](https://anthropic.com) - Sonnet-3.5
-  - [Perplexity](https://perplexity.ai) - Web search models
-  - [Groq](https://groq.com) - Fast inference
-- [**Inngest**](https://www.inngest.com/) - Background jobs and scheduled tasks
-
-### 🔧 Infrastructure & Services
-
-- [**Resend**](https://resend.com) - Email delivery
-- [**AWS S3**](https://aws.amazon.com/s3/) - File storage
-- [**Supabase**](https://supabase.com) - Primary database
-  (Note that I don't directly use the supabase client in this template, so you can switch out supabase with other database providers via the DATABASE_URL and DIRECT_URL environment variables.)
-
-### 🔔 Additional Features
-
-- [**react-toastify**](https://fkhadra.github.io/react-toastify/) - Toast notifications
-- Utility functions for common operations
-- TypeScript and ESLint configuration included
+- **OpenAI GPT-5** - Content analysis and generation
+- **DALL-E 3** - Image generation
+- **Remove.bg** - Background removal
+- **Groq** - Fast inference for transcription
 
 ### 🤖 Agent Features
 
@@ -113,27 +98,42 @@ If you want to add more commands, you can add them to the .cursor/commands folde
 
 ## 🚀 Getting Started
 
-1. Fork this repository
-2. Install dependencies:
+See [GETTING-STARTED.md](./GETTING-STARTED.md) for detailed setup instructions.
 
+### Quick Start
+
+1. **Clone the repository:**
+```bash
+git clone <repository-url>
+cd product-listing
+```
+
+2. **Install dependencies:**
 ```bash
 npm install
 ```
 
-3. Copy `.env.example` to `.env` and configure your environment variables
-4. Set up your database:
+3. **Set up environment variables:**
+   - Copy `.env.example` to `.env`
+   - Configure all required variables (see [Environment Variables](#-environment-variables))
 
+4. **Set up database:**
 ```bash
 npx prisma migrate dev
+npx prisma generate
 ```
 
-5. Start the development server:
-
+5. **Start development server:**
 ```bash
 npm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to see your app.
+
+For detailed setup instructions, see:
+- [Developer Guide](./agent-helpers/docs/DEVELOPER-GUIDE.md) - Complete setup and development guide
+- [User Guide](./agent-helpers/docs/USER-GUIDE.md) - End-user documentation
+- [API Documentation](./agent-helpers/docs/API.md) - tRPC API reference
 
 ## 🔐 Environment Variables
 
@@ -171,14 +171,28 @@ This project requires the following environment variables. Copy `.env.example` t
 
 ## 📁 Project Structure
 
-- `app/` - Next.js app router pages and API routes
-- `src/`
-  - `components/` - UI components
-  - `lib/` - Utilities and configurations
-    - `api/` - tRPC routers
-    - `utils/` - Shared utilities
-  - `stories/` - Storybook files
-- `prisma/` - Database schema
+```
+product-listing/
+├── agent-helpers/          # AI agent helper files and documentation
+├── prisma/                 # Database schema and migrations
+├── src/
+│   ├── app/                # Next.js App Router pages
+│   │   ├── api/            # API routes (auth, upload, webhooks)
+│   │   ├── auth/           # Authentication pages
+│   │   ├── dashboard/      # Main dashboard
+│   │   ├── projects/       # Project management
+│   │   └── billing/        # Billing and subscriptions
+│   ├── components/         # React components
+│   ├── lib/                # Core libraries
+│   │   ├── api/            # tRPC routers
+│   │   ├── ai/             # AI generation utilities
+│   │   ├── aplus/          # A+ content generation
+│   │   └── utils/          # Shared utilities
+│   └── stories/            # Storybook stories
+└── supabase/               # Supabase Edge Functions
+```
+
+See [Developer Guide](./agent-helpers/docs/DEVELOPER-GUIDE.md#project-structure) for detailed structure.
 
 ## 🚀 Deployment
 
@@ -218,6 +232,28 @@ npx prisma migrate deploy                  # Deploy migrations to production
    - Navigate to Domains
    - Add your domain and follow the DNS configuration instructions
 
+## 📚 Documentation
+
+- [**API Documentation**](./agent-helpers/docs/API.md) - Complete tRPC API reference
+- [**Developer Guide**](./agent-helpers/docs/DEVELOPER-GUIDE.md) - Setup, architecture, and development workflow
+- [**User Guide**](./agent-helpers/docs/USER-GUIDE.md) - End-user documentation
+- [**Technical Architecture**](./agent-helpers/docs/TECHNICAL-ARCHITECTURE.md) - System design and architecture
+- [**Security Documentation**](./agent-helpers/docs/SECURITY.md) - Security measures and best practices
+
+## 🤝 Contributing
+
+This is a private project. For questions or suggestions, please contact the maintainers.
+
+### Development Workflow
+
+1. Create a feature branch
+2. Make your changes
+3. Run `npm run build` and `npm run lint`
+4. Write tests for new features
+5. Submit a pull request
+
+See [Developer Guide](./agent-helpers/docs/DEVELOPER-GUIDE.md#contributing) for detailed contribution guidelines.
+
 ## 📝 License
 
-MIT License
+MIT License - See [LICENSE](./LICENSE) file for details.
