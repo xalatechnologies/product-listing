@@ -4,11 +4,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   loggerLink,
   httpBatchStreamLink,
-  createWSClient,
-  wsLink,
-  splitLink,
   createTRPCClient,
   type CreateTRPCClient,
+  // WebSocket imports commented out - not used since we use Supabase Realtime
+  // createWSClient,
+  // wsLink,
+  // splitLink,
 } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { useState } from "react";
@@ -43,16 +44,16 @@ const getQueryClient = () => {
 
 export const api = createTRPCReact<AppRouter>();
 
-// create persistent WebSocket connection
-const wsClient =
-  typeof window !== "undefined"
-    ? createWSClient({
-        url:
-          process.env.NODE_ENV === "development"
-            ? "ws://localhost:3001"
-            : `wss://${window.location.host}`,
-      })
-    : undefined;
+// Note: WebSocket client is not created by default since we use Supabase Realtime
+// for real-time features instead of tRPC subscriptions. If tRPC subscriptions
+// are needed in the future, uncomment and configure the WebSocket client below.
+// const wsClient = typeof window !== "undefined" 
+//   ? createWSClient({
+//       url: process.env.NODE_ENV === "development"
+//         ? "ws://localhost:3001"
+//         : `wss://${window.location.host}`,
+//     })
+//   : undefined;
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
@@ -65,22 +66,34 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        splitLink({
-          condition: (op) => !!wsClient && op.type === "subscription",
-          true: wsLink({
-            client: wsClient!,
-            transformer: SuperJSON,
-          }),
-          false: httpBatchStreamLink({
-            transformer: SuperJSON,
-            url: getBaseUrl() + "/api/trpc",
-            headers: () => {
-              return {
-                "x-trpc-source": "nextjs-react",
-              };
-            },
-          }),
+        // Use HTTP link for all operations (no WebSocket subscriptions)
+        // If tRPC subscriptions are needed, uncomment the splitLink below
+        // and configure the WebSocket client above
+        httpBatchStreamLink({
+          transformer: SuperJSON,
+          url: getBaseUrl() + "/api/trpc",
+          headers: () => {
+            return {
+              "x-trpc-source": "nextjs-react",
+            };
+          },
         }),
+        // splitLink({
+        //   condition: (op) => !!wsClient && op.type === "subscription",
+        //   true: wsLink({
+        //     client: wsClient!,
+        //     transformer: SuperJSON,
+        //   }),
+        //   false: httpBatchStreamLink({
+        //     transformer: SuperJSON,
+        //     url: getBaseUrl() + "/api/trpc",
+        //     headers: () => {
+        //       return {
+        //         "x-trpc-source": "nextjs-react",
+        //       };
+        //     },
+        //   }),
+        // }),
       ],
     });
   });
