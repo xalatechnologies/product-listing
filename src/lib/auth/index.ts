@@ -114,12 +114,15 @@ export const authOptions: NextAuthOptions = {
             id: "amazon",
             name: "Amazon",
             type: "oauth" as const,
-            version: "2.0",
-            scope: "profile",
-            params: { grant_type: "authorization_code" },
-            accessTokenUrl: "https://api.amazon.com/auth/o2/token",
-            authorizationUrl: "https://www.amazon.com/ap/oa?response_type=code",
-            profileUrl: "https://api.amazon.com/user/profile",
+            authorization: {
+              url: "https://www.amazon.com/ap/oa",
+              params: {
+                response_type: "code",
+                scope: "profile",
+              },
+            },
+            token: "https://api.amazon.com/auth/o2/token",
+            userinfo: "https://api.amazon.com/user/profile",
             clientId: process.env.AMAZON_CLIENT_ID,
             clientSecret: process.env.AMAZON_CLIENT_SECRET,
             profile(profile: any) {
@@ -130,7 +133,7 @@ export const authOptions: NextAuthOptions = {
                 image: profile.picture,
               };
             },
-          },
+          } as any, // Custom provider type
         ]
       : []),
     ...(process.env.EBAY_CLIENT_ID && process.env.EBAY_CLIENT_SECRET
@@ -139,13 +142,15 @@ export const authOptions: NextAuthOptions = {
             id: "ebay",
             name: "eBay",
             type: "oauth" as const,
-            version: "2.0",
-            scope: "https://api.ebay.com/oauth/api_scope",
-            params: { grant_type: "authorization_code" },
-            accessTokenUrl: "https://api.ebay.com/identity/v1/oauth2/token",
-            authorizationUrl:
-              "https://auth.ebay.com/oauth2/authorize?response_type=code",
-            profileUrl: "https://api.ebay.com/identity/v1/userinfo",
+            authorization: {
+              url: "https://auth.ebay.com/oauth2/authorize",
+              params: {
+                response_type: "code",
+                scope: "https://api.ebay.com/oauth/api_scope",
+              },
+            },
+            token: "https://api.ebay.com/identity/v1/oauth2/token",
+            userinfo: "https://api.ebay.com/identity/v1/userinfo",
             clientId: process.env.EBAY_CLIENT_ID,
             clientSecret: process.env.EBAY_CLIENT_SECRET,
             profile(profile: any) {
@@ -156,7 +161,7 @@ export const authOptions: NextAuthOptions = {
                 image: null,
               };
             },
-          },
+          } as any, // Custom provider type
         ]
       : []),
   ],
