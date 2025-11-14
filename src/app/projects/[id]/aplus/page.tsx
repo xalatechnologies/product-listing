@@ -18,8 +18,7 @@ const APlusEditor = dynamic(() => import("@/components/APlusEditor").then((mod) 
   ssr: false,
 });
 
-const APlusPreview = dynamic(() => import("@/components/APlusPreview").then((mod) => ({ default: mod.APlusPreview })), {
-  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-64" />,
+const ErrorBoundary = dynamic(() => import("@/components/ErrorBoundary").then((mod) => ({ default: mod.ErrorBoundary })), {
   ssr: false,
 });
 
@@ -33,12 +32,13 @@ export default function APlusPage({ params }: APlusPageProps) {
   const projectId = resolvedParams.id;
   const [exportFormat, setExportFormat] = useState<"png" | "jpg">("png");
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [generateImages, setGenerateImages] = useState(false);
 
-  const { data: project, isLoading: projectLoading } = api.project.get.useQuery({
+  const { data: project, isLoading: projectLoading, error: projectError } = api.project.get.useQuery({
     id: projectId,
   });
-  const { data: productImages } = api.image.listProductImages.useQuery({ projectId });
-  const { data: generatedImages } = api.image.list.useQuery({ projectId });
+  const { data: productImages, error: productImagesError } = api.image.listProductImages.useQuery({ projectId });
+  const { data: generatedImages, error: generatedImagesError } = api.image.list.useQuery({ projectId });
   const {
     data: aPlusContent,
     isLoading: aPlusLoading,
@@ -52,9 +52,14 @@ export default function APlusPage({ params }: APlusPageProps) {
     },
   );
 
+  // Handle errors
+  if (projectError || productImagesError || generatedImagesError || aPlusError) {
+    console.error("A+ page errors:", { projectError, productImagesError, generatedImagesError, aPlusError });
+  }
+
   const generateAPlus = api.aPlus.generate.useMutation({
-    onSuccess: () => {
-      toast.success("A+ content generated successfully!");
+    onSuccess: (data) => {
+      toast.success(`A+ content generated successfully!${data.generatedImageCount ? ` ${data.generatedImageCount} images generated.` : ""}`);
       setShowGenerateModal(false);
       refetch();
     },
@@ -62,6 +67,7 @@ export default function APlusPage({ params }: APlusPageProps) {
       toast.error(error.message || "Failed to generate A+ content");
     },
   });
+
 
   const exportAPlus = api.aPlus.export.useMutation({
     onSuccess: (data) => {
@@ -102,12 +108,33 @@ export default function APlusPage({ params }: APlusPageProps) {
   }
 
   // Handle case where A+ content doesn't exist yet
-  const modules = aPlusContent ? ((aPlusContent.modules as any[]) || []) : [];
+  const modules = aPlusContent?.modules ? (Array.isArray(aPlusContent.modules) ? aPlusContent.modules : []) : [];
+
+  // Safety check for projectId
+  if (!projectId) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Invalid Project ID
+          </h2>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="h-screen flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 container mx-auto px-4 py-6 max-w-full">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <Link
           href={`/projects/${projectId}`}
           className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
@@ -228,27 +255,20 @@ export default function APlusPage({ params }: APlusPageProps) {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Editor */}
-          <div>
+        <div className="flex-1 overflow-hidden -mx-4 px-4">
+          <ErrorBoundary>
             <APlusEditor
               projectId={projectId}
               modules={modules}
+              productName={project.productName}
+              brandKit={project.brandKit}
+              productImages={productImages || []}
+              generatedImages={generatedImages || []}
               onSave={() => {
                 refetch();
               }}
             />
-          </div>
-
-          {/* Preview */}
-          <div>
-            <APlusPreview 
-              modules={modules} 
-              brandKit={project.brandKit}
-              productImages={productImages || []}
-              generatedImages={generatedImages || []}
-            />
-          </div>
+          </ErrorBoundary>
         </div>
       )}
 
@@ -272,11 +292,25 @@ export default function APlusPage({ params }: APlusPageProps) {
                 Choose the type of A+ content you want to generate:
               </p>
               <div className="space-y-3">
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2 p-3 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-500 dark:hover:border-purple-500 transition-colors cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={generateImages}
+                      onChange={(e) => setGenerateImages(e.target.checked)}
+                      className="rounded border-gray-300 dark:border-gray-600 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Automatically generate images for modules
+                    </span>
+                  </label>
+                </div>
                 <button
                   onClick={() => {
                     generateAPlus.mutate({
                       projectId,
                       isPremium: false,
+                      generateImages,
                     });
                   }}
                   disabled={generateAPlus.isPending}
@@ -298,6 +332,7 @@ export default function APlusPage({ params }: APlusPageProps) {
                     generateAPlus.mutate({
                       projectId,
                       isPremium: true,
+                      generateImages,
                     });
                   }}
                   disabled={generateAPlus.isPending}
@@ -322,6 +357,7 @@ export default function APlusPage({ params }: APlusPageProps) {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

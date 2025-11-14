@@ -25,6 +25,7 @@ const aPlusModuleSchema = z.object({
 const generateAPlusSchema = z.object({
   projectId: z.string(),
   isPremium: z.boolean().default(false),
+  generateImages: z.boolean().default(false), // Whether to automatically generate images for modules
 });
 
 const updateAPlusSchema = z.object({
@@ -148,12 +149,35 @@ export const aPlusRouter = createTRPCRouter({
         },
       });
 
+      // Step 4: Optionally generate images for modules
+      let generatedImageCount = 0;
+      if (input.generateImages) {
+        try {
+          const { generateAPlusModuleImages } = await import("@/lib/aplus/imageGeneration");
+          const productImageUrl = project.productImages?.[0]?.url;
+          
+          const imageResults = await generateAPlusModuleImages(
+            input.projectId,
+            userId,
+            generatedModules,
+            project.productName,
+            productImageUrl,
+          );
+          
+          generatedImageCount = imageResults.length;
+        } catch (error) {
+          console.error("Failed to generate A+ images:", error);
+          // Don't fail the entire request if image generation fails
+        }
+      }
+
       return {
         id: aPlusContent.id,
         projectId: aPlusContent.projectId,
         modules: generatedModules,
         isPremium: aPlusContent.isPremium,
         analysis,
+        generatedImageCount,
       };
     }),
 
@@ -292,6 +316,134 @@ export const aPlusRouter = createTRPCRouter({
         fileSize: exportResult.fileSize,
         moduleCount: exportResult.moduleCount,
       };
+    }),
+
+  /**
+   * Generate images for A+ content modules
+   */
+  generateImages: protectedProcedure
+    .input(z.object({
+      projectId: z.string(),
+      moduleIndex: z.number().optional(), // If provided, only generate for this module
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+        include: {
+          productImages: {
+            orderBy: { order: "asc" },
+            take: 1,
+          },
+          aPlusContent: true,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      if (!project.aPlusContent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "A+ content not found. Please generate A+ content first.",
+        });
+      }
+
+      const modules = project.aPlusContent.modules as any[];
+      const modulesToProcess = input.moduleIndex !== undefined
+        ? [modules[input.moduleIndex]!].filter(Boolean)
+        : modules;
+
+      const { generateAPlusModuleImages } = await import("@/lib/aplus/imageGeneration");
+      const productImageUrl = project.productImages?.[0]?.url;
+
+      const results = await generateAPlusModuleImages(
+        input.projectId,
+        userId,
+        modulesToProcess,
+        project.productName,
+        productImageUrl,
+      );
+
+      return {
+        generatedCount: results.length,
+        images: results,
+      };
+    }),
+
+  /**
+   * Generate comparison image for A+ content
+   */
+  generateComparisonImage: protectedProcedure
+    .input(z.object({
+      projectId: z.string(),
+      moduleIndex: z.number().optional(), // Module with comparison data
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+        include: {
+          productImages: {
+            orderBy: { order: "asc" },
+            take: 1,
+          },
+          aPlusContent: true,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      if (!project.aPlusContent) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "A+ content not found",
+        });
+      }
+
+      const modules = project.aPlusContent.modules as any[];
+      const module = input.moduleIndex !== undefined
+        ? modules[input.moduleIndex]
+        : modules.find((m: any) => m.content?.additionalContent?.comparisonData);
+
+      if (!module || !module.content?.additionalContent?.comparisonData) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No comparison data found in modules",
+        });
+      }
+
+      const { generateComparisonImage } = await import("@/lib/aplus/imageGeneration");
+      const productImageUrl = project.productImages?.[0]?.url;
+
+      const result = await generateComparisonImage(
+        input.projectId,
+        userId,
+        project.productName,
+        module.content.additionalContent.comparisonData,
+        productImageUrl,
+      );
+
+      return result;
     }),
 });
 

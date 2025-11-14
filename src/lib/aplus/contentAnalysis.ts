@@ -117,8 +117,23 @@ Create a comprehensive A+ content structure with 4-6 modules. For each module, p
 1. Module Type (choose from: standard-single-image-sidebar, standard-single-image-highlights, standard-four-images-text, standard-single-image-specs, standard-comparison-table, standard-single-image-bullets)
 2. Headline (10-50 characters, compelling and benefit-focused)
 3. Body Text (50-2000 characters, detailed and persuasive)
-4. Image Descriptions (what images should show for this module)
+4. Image Descriptions (detailed prompts for AI image generation - see guidelines below)
 5. Additional Content (bullets, sidebar items, specifications, or comparison data as appropriate)
+
+IMAGE DESCRIPTION GUIDELINES:
+For each image description, create detailed, actionable prompts that can be used for AI image generation. Include:
+- "Create live image" for lifestyle/product-in-use scenarios
+- "Create mockup image" for product presentation
+- Step-by-step instructions for how-to guides (e.g., "create how to use image 1) step one, 2) step two, 3) step three")
+- Specific visual requirements (e.g., "remove background", "adjust lighting", "enhance sharpness")
+- Comparison scenarios when relevant (e.g., "create comparison image showing product vs competitor")
+
+Examples of good image descriptions:
+- "Create live image using [product] to [action] in [setting]"
+- "Create live image showing [product] [specific use case]"
+- "Create mockup image for this product with professional background"
+- "Create how to use image: 1) [step 1], 2) [step 2], 3) [step 3]"
+- "Create comparison image highlighting differences vs similar products"
 
 Also provide:
 - Summary: Brief 1-2 sentence product summary
@@ -134,7 +149,7 @@ Return the response as a JSON object with this structure:
       "moduleType": "standard-single-image-sidebar",
       "headline": "Compelling headline",
       "bodyText": "Detailed body text...",
-      "imageDescriptions": ["Description of image 1", "Description of image 2"],
+      "imageDescriptions": ["Create live image using [product] to [action]", "Create mockup image for this product"],
       "additionalContent": {
         "bullets": ["Bullet 1", "Bullet 2"],
         "sidebar": ["Sidebar item 1", "Sidebar item 2"],
@@ -155,7 +170,9 @@ Focus on:
 - Addressing customer pain points
 - Creating emotional connection
 - Providing clear value proposition
-- Making content scannable and easy to understand`;
+- Making content scannable and easy to understand
+- Generating visual explanations that illustrate product use and functionality
+- Creating comparison images that highlight advantages vs similar products`;
 }
 
 /**

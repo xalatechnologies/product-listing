@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId, userId } = await req.json();
+    const { projectId, userId, generateImages } = await req.json();
 
     if (!projectId || !userId) {
       return NextResponse.json(
@@ -97,7 +97,32 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    // Optionally generate images for A+ content modules
+    let generatedImageCount = 0;
+    if (generateImages) {
+      try {
+        const { generateAPlusModuleImages } = await import("@/lib/aplus/imageGeneration");
+        const productImageUrl = project.productImages?.[0]?.url;
+        
+        const imageResults = await generateAPlusModuleImages(
+          projectId,
+          userId,
+          generatedModules,
+          project.productName,
+          productImageUrl,
+        );
+        
+        generatedImageCount = imageResults.length;
+      } catch (error) {
+        console.error("Failed to generate A+ images:", error);
+        // Don't fail the entire request if image generation fails
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true,
+      generatedImageCount,
+    });
   } catch (error) {
     console.error("A+ processing error:", error);
     return NextResponse.json(
