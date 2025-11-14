@@ -43,18 +43,50 @@ export async function POST(request: Request) {
       },
     });
 
-    // Create NextAuth session token
-    const sessionToken = randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-
-    // Create session in database (NextAuth format)
-    await prisma.session.create({
-      data: {
-        sessionToken,
+    // Check if session already exists
+    const existingSession = await prisma.session.findFirst({
+      where: {
         userId: prismaUser.id,
-        expires,
+        expires: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        expires: "desc",
       },
     });
+
+    let sessionToken: string;
+    let expires: Date;
+
+    if (existingSession && existingSession.expires > new Date()) {
+      // Reuse existing valid session
+      sessionToken = existingSession.sessionToken;
+      expires = existingSession.expires;
+    } else {
+      // Create new NextAuth session token
+      sessionToken = randomBytes(32).toString("hex");
+      expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      // Delete any expired sessions for this user
+      await prisma.session.deleteMany({
+        where: {
+          userId: prismaUser.id,
+          expires: {
+            lt: new Date(),
+          },
+        },
+      });
+
+      // Create session in database (NextAuth format)
+      await prisma.session.create({
+        data: {
+          sessionToken,
+          userId: prismaUser.id,
+          expires,
+        },
+      });
+    }
 
     // Set session cookie
     // NextAuth uses "next-auth.session-token" in dev and "__Secure-next-auth.session-token" in prod

@@ -89,21 +89,21 @@ function SignInContent() {
 
             const sessionData = await sessionResponse.json();
             console.log("Session created successfully:", sessionData);
+            
+            // Wait a moment for cookie to be set
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            toast.success("Signed in successfully!");
+            
+            // Use window.location for full page reload to ensure session is recognized
+            console.log("Redirecting to:", callbackUrl);
+            window.location.href = callbackUrl;
           } catch (sessionError) {
             console.error("Session creation error:", sessionError);
             toast.error("Failed to create session. Please try again.");
             setIsLoading(false);
             return;
           }
-
-          // Wait a bit for the cookie to be set, then redirect
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          toast.success("Signed in successfully!");
-          
-          // Force redirect using window.location for reliability
-          console.log("Redirecting to:", callbackUrl);
-          window.location.href = callbackUrl;
         } catch (error: any) {
           toast.error(error.message || "Invalid email or password");
           setIsLoading(false);
