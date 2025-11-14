@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestUser, createTestProject, createTestBrandKit } from '../../../../tests/integration/setup';
-import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../tests/integration/trpc-utils';
+import { createTestUser, createTestProject, createTestBrandKit } from '../../../../../tests/integration/setup';
+import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../../tests/integration/trpc-utils';
 import { ProjectStatus } from '@prisma/client';
 
 describe('Project Router Integration Tests', () => {

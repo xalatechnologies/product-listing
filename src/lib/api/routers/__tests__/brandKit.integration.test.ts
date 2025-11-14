@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestUser, createTestBrandKit, createTestProject } from '../../../../tests/integration/setup';
-import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../tests/integration/trpc-utils';
+import { createTestUser, createTestBrandKit, createTestProject } from '../../../../../tests/integration/setup';
+import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../../tests/integration/trpc-utils';
 
 describe('Brand Kit Router Integration Tests', () => {
   let userId: string;

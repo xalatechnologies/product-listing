@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { POST } from '../upload/route';
-import { createTestUser, createTestProject } from '../../../tests/integration/setup';
+import { createTestUser, createTestProject } from '../../../../tests/integration/setup';
 import { getServerAuthSession } from '@/lib/auth';
 
 // Mock NextAuth

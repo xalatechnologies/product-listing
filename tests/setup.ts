@@ -47,3 +47,14 @@ vi.mock('next/link', () => ({
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret';
 process.env.NEXTAUTH_URL = 'http://localhost:3000';
+
+// Mock IntersectionObserver (needed for Framer Motion)
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  disconnect() {}
+  observe() {}
+  takeRecords() {
+    return [];
+  }
+  unobserve() {}
+} as any;

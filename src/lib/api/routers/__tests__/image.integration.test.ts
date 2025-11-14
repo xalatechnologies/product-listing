@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestUser, createTestProject } from '../../../../tests/integration/setup';
-import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../tests/integration/trpc-utils';
+import { createTestUser, createTestProject } from '../../../../../tests/integration/setup';
+import { createAuthenticatedCaller, createUnauthenticatedCaller } from '../../../../../tests/integration/trpc-utils';
 import { ImageType } from '@prisma/client';
 
 describe('Image Router Integration Tests', () => {
