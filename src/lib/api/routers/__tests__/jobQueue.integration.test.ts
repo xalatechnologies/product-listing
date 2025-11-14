@@ -16,6 +16,7 @@ import {
   getJob,
   getPendingJobs,
   getJobsByStatus,
+  getUserJobs,
   waitForJobCompletion,
   cleanupTestJobs,
   type JobType,
@@ -164,7 +165,7 @@ describe("Job Queue Integration Tests", () => {
 
       const userJobs = await getUserJobs(userId, 10);
       expect(userJobs.length).toBeGreaterThanOrEqual(1);
-      userJobs.forEach((job) => {
+      userJobs.forEach((job: { user_id: string | null }) => {
         expect(job.user_id).toBe(userId);
       });
     });

@@ -40,7 +40,7 @@ Built with Next.js 15, TypeScript, tRPC, Prisma, Supabase, and AI integrations.
 - **Supabase** - Database, storage, and realtime
 - **Tailwind CSS** - Utility-first styling
 - **Framer Motion** - Animations
-- **Inngest** - Background job processing
+- **Supabase Job Queue** - Background job processing with pg_cron and Edge Functions
 - **Stripe** - Subscription and payment processing
 
 ### 🤖 AI Integrations
@@ -163,9 +163,9 @@ This project requires the following environment variables. Copy `.env.example` t
 ### AI Services
 - `OPENAI_API_KEY` - OpenAI API key (if using OpenAI for AI features)
 
-### Inngest (Background Jobs)
-- `INNGEST_EVENT_KEY` - Inngest event key
-- `INNGEST_SIGNING_KEY` - Inngest signing key
+### Supabase (Background Jobs)
+- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role key for job queue processing
+- `NEXT_PUBLIC_APP_URL` - Your app URL (required for Edge Function callbacks)
 
 > **Note**: The `.env` file is already in `.gitignore` and will not be committed to version control.
 

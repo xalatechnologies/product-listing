@@ -80,7 +80,7 @@
 - [x] Deploy Edge Function to Supabase - Complete (process-jobs function deployed, Version 2, ACTIVE)
 - [x] Set up pg_cron schedule in Supabase - Complete (cron job active, running every 10 seconds)
 - [x] Test job queue processing end-to-end - Complete (system verified and operational)
-- [ ] Remove Inngest dependencies (optional) - Pending (after Supabase queue is verified working)
+- [x] Remove Inngest dependencies - Complete (all Inngest files removed, package uninstalled, replaced with Supabase job queue)
 
 ## Phase 4: Brand Kit System ✅ COMPLETE
 
@@ -232,7 +232,7 @@
 
 **Completed:**
 - ✅ Phase 2: Project Management (CRUD + UI)
-- ✅ Phase 3: AI Image Generation (all 6 types, background removal, Inngest queue)
+- ✅ Phase 3: AI Image Generation (all 6 types, background removal, Supabase job queue)
 - ✅ Phase 4: Brand Kit System (CRUD + UI + logo upload + color picker)
 - ✅ Phase 5: A+ Content Generator (GPT-5 analysis, editor, preview, export)
 - ✅ Phase 6: Marketplace Export (Amazon, eBay, Etsy, Shopify with auto-resize)
