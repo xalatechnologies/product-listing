@@ -56,28 +56,32 @@ export async function POST(request: Request) {
       },
     });
 
-    // Set session cookie (NextAuth uses different cookie names in dev vs prod)
-    const cookieName = 
-      process.env.NODE_ENV === "production"
-        ? "__Secure-next-auth.session-token"
-        : "next-auth.session-token";
+    // Set session cookie
+    // NextAuth uses "next-auth.session-token" in dev and "__Secure-next-auth.session-token" in prod
+    const isProduction = process.env.NODE_ENV === "production";
+    const cookieName = isProduction 
+      ? "__Secure-next-auth.session-token"
+      : "next-auth.session-token";
 
     const response = NextResponse.json({ 
       success: true,
       userId: prismaUser.id,
-      email: prismaUser.email 
+      email: prismaUser.email,
+      sessionToken: sessionToken // For debugging
     });
     
+    // Set the cookie with proper settings
     response.cookies.set(cookieName, sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction,
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: "/",
     });
 
-    // Also set the non-secure version for dev
-    if (process.env.NODE_ENV !== "production") {
+    // In development, also set without secure flag for localhost
+    if (!isProduction) {
+      // NextAuth might also check for this cookie name
       response.cookies.set("next-auth.session-token", sessionToken, {
         httpOnly: true,
         secure: false,
@@ -87,6 +91,8 @@ export async function POST(request: Request) {
       });
     }
 
+    console.log("Session created for user:", prismaUser.email, "Token:", sessionToken.substring(0, 10) + "...");
+    
     return response;
   } catch (error: any) {
     console.error("Create session error:", error);

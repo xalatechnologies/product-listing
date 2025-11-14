@@ -96,12 +96,14 @@ function SignInContent() {
             return;
           }
 
+          // Wait a bit for the cookie to be set, then redirect
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
           toast.success("Signed in successfully!");
           
           // Force redirect using window.location for reliability
-          setTimeout(() => {
-            window.location.href = callbackUrl;
-          }, 500);
+          console.log("Redirecting to:", callbackUrl);
+          window.location.href = callbackUrl;
         } catch (error: any) {
           toast.error(error.message || "Invalid email or password");
           setIsLoading(false);
