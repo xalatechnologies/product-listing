@@ -43,8 +43,13 @@ export default function DashboardPage() {
     offset: 0,
   });
 
-  const projects = projectsData?.projects || [];
-  const totalProjects = projectsData?.total || 0;
+  // Handle both paginated and non-paginated responses
+  const projects = Array.isArray(projectsData) 
+    ? projectsData 
+    : projectsData?.projects || [];
+  const totalProjects = Array.isArray(projectsData) 
+    ? projectsData.length 
+    : projectsData?.total || 0;
   const { data: credits } = api.subscription.getCredits.useQuery(undefined, {
     refetchInterval: 30000, // Poll every 30 seconds
   });

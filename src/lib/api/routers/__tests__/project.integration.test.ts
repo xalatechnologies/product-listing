@@ -83,19 +83,23 @@ describe('Project Router Integration Tests', () => {
       await createTestProject(userId, { name: 'Project 2' });
       await createTestProject(otherUserId, { name: 'Other User Project' });
 
-      const projects = await caller.project.list();
+      const result = await caller.project.list();
 
+      // Handle paginated response
+      const projects = 'projects' in result ? result.projects : result;
+      
       expect(projects).toHaveLength(2);
-      expect(projects[0].name).toBe('Project 2'); // Should be ordered by updatedAt desc
-      expect(projects[1].name).toBe('Project 1');
+      expect(projects[0]?.name).toBe('Project 2'); // Should be ordered by updatedAt desc
+      expect(projects[1]?.name).toBe('Project 1');
       // Should not include other user's project
-      expect(projects.find((p) => p.name === 'Other User Project')).toBeUndefined();
+      expect(projects.find((p: any) => p.name === 'Other User Project')).toBeUndefined();
     });
 
     it('should return empty array when user has no projects', async () => {
       const caller = createAuthenticatedCaller(userId);
 
-      const projects = await caller.project.list();
+      const result = await caller.project.list();
+      const projects = 'projects' in result ? result.projects : result;
 
       expect(projects).toHaveLength(0);
     });

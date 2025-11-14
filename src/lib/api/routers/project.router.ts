@@ -69,8 +69,27 @@ export const projectRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
-      const limit = input?.limit ?? 20;
-      const offset = input?.offset ?? 0;
+      
+      // If no pagination params provided, return all projects (backward compatibility)
+      if (!input) {
+        const projects = await ctx.db.project.findMany({
+          where: { userId },
+          orderBy: { updatedAt: "desc" },
+          include: {
+            brandKit: true,
+            _count: {
+              select: {
+                productImages: true,
+                generatedImages: true,
+              },
+            },
+          },
+        });
+        return projects;
+      }
+
+      const limit = input.limit ?? 20;
+      const offset = input.offset ?? 0;
 
       // Get total count for pagination
       const total = await ctx.db.project.count({
