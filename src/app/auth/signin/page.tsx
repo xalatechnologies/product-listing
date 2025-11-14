@@ -46,25 +46,56 @@ function SignInContent() {
         try {
           const result = await signInWithPassword(email, password);
           
+          if (!result.user || !result.session) {
+            toast.error("Failed to sign in. Please try again.");
+            setIsLoading(false);
+            return;
+          }
+
           // Sync user to Prisma if needed
-          if (result.user) {
-            try {
-              const response = await fetch("/api/auth/sync-user", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: result.user.id }),
-              });
-              
-              if (!response.ok) {
-                console.warn("Failed to sync user to Prisma");
-              }
-            } catch (syncError) {
-              console.warn("User sync error:", syncError);
+          try {
+            const syncResponse = await fetch("/api/auth/sync-user", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userId: result.user.id }),
+            });
+            
+            if (!syncResponse.ok) {
+              console.warn("Failed to sync user to Prisma");
             }
+          } catch (syncError) {
+            console.warn("User sync error:", syncError);
+          }
+
+          // Create NextAuth session from Supabase auth
+          // This allows the middleware to recognize the user as authenticated
+          try {
+            const sessionResponse = await fetch("/api/auth/supabase-session", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                accessToken: result.session.access_token 
+              }),
+            });
+
+            if (!sessionResponse.ok) {
+              console.warn("Failed to create NextAuth session");
+              toast.error("Session creation failed. Please try again.");
+              setIsLoading(false);
+              return;
+            }
+          } catch (sessionError) {
+            console.error("Session creation error:", sessionError);
+            toast.error("Failed to create session. Please try again.");
+            setIsLoading(false);
+            return;
           }
 
           toast.success("Signed in successfully!");
+          
+          // Redirect to dashboard
           router.push(callbackUrl);
+          router.refresh(); // Refresh to update session state
         } catch (error: any) {
           toast.error(error.message || "Invalid email or password");
           setIsLoading(false);
