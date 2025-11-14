@@ -6,6 +6,9 @@ import {
   type DefaultSession,
 } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
+import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
+import AppleProvider from "next-auth/providers/apple";
 
 export enum UserRole {
   user = "user",
@@ -71,6 +74,91 @@ export const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM || "onboarding@resend.dev",
     }),
+    // OAuth providers (only enabled if credentials are configured)
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? [
+          GitHubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+          }),
+        ]
+      : []),
+    ...(process.env.APPLE_ID &&
+    process.env.APPLE_TEAM_ID &&
+    process.env.APPLE_PRIVATE_KEY &&
+    process.env.APPLE_KEY_ID
+      ? [
+          AppleProvider({
+            clientId: process.env.APPLE_ID,
+            clientSecret: {
+              appleId: process.env.APPLE_ID,
+              teamId: process.env.APPLE_TEAM_ID,
+              privateKey: process.env.APPLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+              keyId: process.env.APPLE_KEY_ID,
+            },
+          }),
+        ]
+      : []),
+    // Custom OAuth providers for Amazon and eBay
+    ...(process.env.AMAZON_CLIENT_ID && process.env.AMAZON_CLIENT_SECRET
+      ? [
+          {
+            id: "amazon",
+            name: "Amazon",
+            type: "oauth" as const,
+            version: "2.0",
+            scope: "profile",
+            params: { grant_type: "authorization_code" },
+            accessTokenUrl: "https://api.amazon.com/auth/o2/token",
+            authorizationUrl: "https://www.amazon.com/ap/oa?response_type=code",
+            profileUrl: "https://api.amazon.com/user/profile",
+            clientId: process.env.AMAZON_CLIENT_ID,
+            clientSecret: process.env.AMAZON_CLIENT_SECRET,
+            profile(profile: any) {
+              return {
+                id: profile.user_id,
+                name: profile.name,
+                email: profile.email,
+                image: profile.picture,
+              };
+            },
+          },
+        ]
+      : []),
+    ...(process.env.EBAY_CLIENT_ID && process.env.EBAY_CLIENT_SECRET
+      ? [
+          {
+            id: "ebay",
+            name: "eBay",
+            type: "oauth" as const,
+            version: "2.0",
+            scope: "https://api.ebay.com/oauth/api_scope",
+            params: { grant_type: "authorization_code" },
+            accessTokenUrl: "https://api.ebay.com/identity/v1/oauth2/token",
+            authorizationUrl:
+              "https://auth.ebay.com/oauth2/authorize?response_type=code",
+            profileUrl: "https://api.ebay.com/identity/v1/userinfo",
+            clientId: process.env.EBAY_CLIENT_ID,
+            clientSecret: process.env.EBAY_CLIENT_SECRET,
+            profile(profile: any) {
+              return {
+                id: profile.userId || profile.sub,
+                name: profile.username || profile.name,
+                email: profile.email,
+                image: null,
+              };
+            },
+          },
+        ]
+      : []),
   ],
   session: {
     strategy: "database",
