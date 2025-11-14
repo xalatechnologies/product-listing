@@ -22,6 +22,11 @@ const ExportSelector = dynamic(() => import("@/components/ExportSelector").then(
   ssr: false,
 });
 
+const ExportHistory = dynamic(() => import("@/components/ExportHistory").then((mod) => ({ default: mod.ExportHistory })), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg h-32" />,
+  ssr: false,
+});
+
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -398,13 +403,16 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               Export Images
             </h2>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-6">
             <ExportSelector
               projectId={projectId}
               onExportComplete={(downloadUrl) => {
                 toast.success("Export completed! Download starting...");
               }}
             />
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <ExportHistory projectId={projectId} />
+            </div>
           </div>
         </div>
       )}

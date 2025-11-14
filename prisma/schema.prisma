@@ -30,6 +30,7 @@ model User {
   apiKeys       ApiKey[]
   credits       CreditTransaction[]
   feedback      Feedback[]
+  exports       Export[]
 }
 
 model Account {
@@ -100,6 +101,9 @@ model Project {
   // Branding
   brandKitId String?
   brandKit   BrandKit? @relation(fields: [brandKitId], references: [id])
+
+  // Exports
+  exports Export[]
 
   // Metadata
   createdAt DateTime @default(now())
@@ -285,4 +289,30 @@ enum FeedbackStatus {
   REVIEWED
   RESOLVED
   ARCHIVED
+}
+
+model Export {
+  id          String        @id @default(cuid())
+  userId      String
+  projectId   String
+  platform    ExportPlatform
+  downloadUrl String // Signed URL or public URL
+  filePath    String // Path in Supabase Storage
+  fileSize    Int // Size in bytes
+  imageCount  Int // Number of images in export
+  createdAt   DateTime      @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([createdAt])
+}
+
+enum ExportPlatform {
+  AMAZON
+  EBAY
+  ETSY
+  SHOPIFY
 }

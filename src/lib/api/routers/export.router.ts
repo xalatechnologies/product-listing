@@ -11,7 +11,7 @@ import { getMarketplaceSpec } from "@/lib/export/specs";
 import { resizeForMarketplace, downloadImage } from "@/lib/export/imageResize";
 import { createZipFromBuffers, formatFilename } from "@/lib/export/zipGenerator";
 import { uploadFile, getSignedUrl } from "@/lib/storage";
-import { ImageType } from "@prisma/client";
+import { ImageType, ExportPlatform } from "@prisma/client";
 
 const exportSchema = z.object({
   projectId: z.string(),
@@ -105,11 +105,28 @@ export async function exportForPlatform(
   // Get signed download URL (exports bucket is private)
   const downloadUrl = await getSignedUrl("exports", zipPath, 3600); // 1 hour expiry
 
+  // Map platform string to ExportPlatform enum
+  const platformEnum: ExportPlatform = platform.toUpperCase() as ExportPlatform;
+
+  // Save export record to database
+  const exportRecord = await db.export.create({
+    data: {
+      userId,
+      projectId,
+      platform: platformEnum,
+      downloadUrl,
+      filePath: zipPath,
+      fileSize: zipBuffer.length,
+      imageCount: imageFiles.length,
+    },
+  });
+
   return {
     downloadUrl,
     fileSize: zipBuffer.length,
     imageCount: imageFiles.length,
     platform,
+    exportId: exportRecord.id,
   };
 }
 
@@ -162,6 +179,66 @@ export const exportRouter = createTRPCRouter({
         input.platform,
         ctx.db,
       );
+    }),
+
+  /**
+   * Get export history for a project
+   */
+  getHistory: protectedProcedure
+    .input(z.object({ projectId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId: ctx.session.user.id,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      // Get exports for this project, ordered by most recent first
+      const exports = await ctx.db.export.findMany({
+        where: {
+          projectId: input.projectId,
+          userId: ctx.session.user.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          platform: true,
+          filePath: true,
+          fileSize: true,
+          imageCount: true,
+          createdAt: true,
+        },
+      });
+
+      // Generate fresh signed URLs for each export (since they expire)
+      const exportsWithUrls = await Promise.all(
+        exports.map(async (exp) => {
+          // Regenerate signed URL from stored filePath
+          const downloadUrl = await getSignedUrl("exports", exp.filePath, 3600); // 1 hour expiry
+          
+          return {
+            id: exp.id,
+            platform: exp.platform,
+            downloadUrl,
+            fileSize: exp.fileSize,
+            imageCount: exp.imageCount,
+            createdAt: exp.createdAt,
+          };
+        }),
+      );
+
+      return exportsWithUrls;
     }),
 });
 
