@@ -131,31 +131,47 @@ export const projectRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      const project = await ctx.db.project.findFirst({
-        where: {
-          id: input.id,
-          userId,
-        },
-        include: {
-          productImages: {
-            orderBy: { order: "asc" },
+      try {
+        const project = await ctx.db.project.findFirst({
+          where: {
+            id: input.id,
+            userId,
           },
-          generatedImages: {
-            orderBy: { createdAt: "desc" },
+          include: {
+            productImages: {
+              orderBy: { order: "asc" },
+            },
+            generatedImages: {
+              orderBy: { createdAt: "desc" },
+            },
+            brandKit: true,
+            aPlusContent: true,
           },
-          brandKit: true,
-          aPlusContent: true,
-        },
-      });
+        });
 
-      if (!project) {
+        if (!project) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Project not found",
+          });
+        }
+
+        return project;
+      } catch (error) {
+        // Log error for debugging
+        console.error("Error fetching project:", error);
+        
+        // Re-throw TRPC errors as-is
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        
+        // Wrap other errors
         throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Project not found",
+          code: "INTERNAL_SERVER_ERROR",
+          message: error instanceof Error ? error.message : "Failed to fetch project",
         });
       }
-
-      return project;
     }),
 
   /**
