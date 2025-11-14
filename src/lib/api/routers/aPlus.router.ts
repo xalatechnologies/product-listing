@@ -14,6 +14,8 @@ import { analyzeProductForAPlus } from "@/lib/aplus/contentAnalysis";
 import { getRandomTemplateForModule, applyBrandKitToTemplate } from "@/lib/aplus/templates";
 import { getStandardModules } from "@/lib/aplus/moduleSpecs";
 import { exportAPlusContent } from "@/lib/aplus/export";
+import { getCreditsRequiredForAPlus } from "@/lib/utils/credits";
+import { CreditType } from "@prisma/client";
 
 const aPlusModuleSchema = z.object({
   type: z.string(),
@@ -61,15 +63,34 @@ export const aPlusRouter = createTRPCRouter({
         });
       }
 
-      // TODO: Check user has enough credits (A+ costs more)
-      // const user = await ctx.db.user.findUnique({ where: { id: userId } });
-      // const creditsRequired = input.isPremium ? 50 : 20;
-      // if (!user || user.credits < creditsRequired) {
-      //   throw new TRPCError({
-      //     code: "PAYMENT_REQUIRED",
-      //     message: "Insufficient credits for A+ content generation",
-      //   });
-      // }
+      // Check user has enough credits (A+ costs more)
+      const creditsRequired = getCreditsRequiredForAPlus(input.isPremium);
+      const creditResult = await ctx.db.creditTransaction.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      });
+
+      const balance = creditResult._sum.amount || 0;
+      if (balance < creditsRequired) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Insufficient credits. You have ${balance} credits but need ${creditsRequired} for ${input.isPremium ? "Premium" : "Standard"} A+ content generation. Please purchase more credits.`,
+        });
+      }
+
+      // Deduct credits before generation
+      await ctx.db.creditTransaction.create({
+        data: {
+          userId,
+          amount: -creditsRequired,
+          type: CreditType.USAGE,
+          description: `Generate ${input.isPremium ? "Premium" : "Standard"} A+ content for project ${input.projectId}`,
+          metadata: {
+            projectId: input.projectId,
+            isPremium: input.isPremium,
+          },
+        },
+      });
 
       // Step 1: Analyze product data using GPT-5
       const analysis = await analyzeProductForAPlus({

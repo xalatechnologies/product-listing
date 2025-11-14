@@ -21,7 +21,7 @@ const exportSchema = z.object({
 /**
  * Export images for a specific marketplace platform
  */
-async function exportForPlatform(
+export async function exportForPlatform(
   projectId: string,
   userId: string,
   platform: "amazon" | "ebay" | "etsy" | "shopify",

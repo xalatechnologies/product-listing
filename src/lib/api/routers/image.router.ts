@@ -11,7 +11,8 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { ImageType } from "@prisma/client";
+import { ImageType, CreditType } from "@prisma/client";
+import { getCreditsRequiredForImage } from "@/lib/utils/credits";
 
 const uploadImageSchema = z.object({
   projectId: z.string(),
@@ -91,24 +92,35 @@ export const imageRouter = createTRPCRouter({
         });
       }
 
-      // TODO: Check user has enough credits
-      // const user = await ctx.db.user.findUnique({ where: { id: userId } });
-      // if (!user || user.credits < getCreditsRequired(input.type)) {
-      //   throw new TRPCError({
-      //     code: "PAYMENT_REQUIRED",
-      //     message: "Insufficient credits",
-      //   });
-      // }
+      // Check user has enough credits
+      const creditsRequired = getCreditsRequiredForImage(input.type);
+      const creditResult = await ctx.db.creditTransaction.aggregate({
+        where: { userId },
+        _sum: { amount: true },
+      });
 
-      // TODO: Deduct credits before generation
-      // await ctx.db.creditTransaction.create({
-      //   data: {
-      //     userId,
-      //     amount: -getCreditsRequired(input.type),
-      //     type: CreditType.IMAGE_GENERATION,
-      //     description: `Generate ${input.type} image`,
-      //   },
-      // });
+      const balance = creditResult._sum.amount || 0;
+      if (balance < creditsRequired) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: `Insufficient credits. You have ${balance} credits but need ${creditsRequired} for ${input.type} generation. Please purchase more credits.`,
+        });
+      }
+
+      // Deduct credits before generation
+      await ctx.db.creditTransaction.create({
+        data: {
+          userId,
+          amount: -creditsRequired,
+          type: CreditType.USAGE,
+          description: `Generate ${input.type} image for project ${input.projectId}`,
+          metadata: {
+            projectId: input.projectId,
+            imageType: input.type,
+            style: input.style,
+          },
+        },
+      });
 
       // Queue Inngest job for image generation
       const { inngest } = await import("@/../inngest.config");
@@ -239,10 +251,47 @@ export const imageRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
-      // TODO: Implement image pack download after Prisma client is generated
-      // Generate ZIP file with all images
-      // Return signed URL for download
-      throw new Error("Not implemented: Prisma client needs to be generated");
+      // Verify project belongs to user
+      const project = await ctx.db.project.findFirst({
+        where: {
+          id: input.projectId,
+          userId,
+        },
+        include: {
+          generatedImages: true,
+        },
+      });
+
+      if (!project) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Project not found",
+        });
+      }
+
+      if (project.generatedImages.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No generated images found for this project",
+        });
+      }
+
+      // Use export router functionality to generate ZIP
+      const { exportForPlatform } = await import("@/lib/api/routers/export.router");
+
+      const platform = (input.format || "amazon") as "amazon" | "ebay" | "etsy" | "shopify";
+      const result = await exportForPlatform(
+        input.projectId,
+        userId,
+        platform,
+        ctx.db,
+      );
+
+      return {
+        downloadUrl: result.downloadUrl,
+        imageCount: project.generatedImages.length,
+        format: platform,
+      };
     }),
 });
 

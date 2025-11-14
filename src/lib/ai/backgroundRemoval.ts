@@ -73,7 +73,74 @@ export async function removeBackground(
 export async function removeBackgroundReplicate(
   imageUrl: string,
 ): Promise<BackgroundRemovalResult> {
-  // TODO: Implement Replicate API integration
-  throw new Error("Replicate API integration not yet implemented");
+  const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
+  
+  if (!REPLICATE_API_TOKEN) {
+    throw new Error("REPLICATE_API_TOKEN environment variable is not set");
+  }
+
+  // Download the image
+  const imageResponse = await fetch(imageUrl);
+  if (!imageResponse.ok) {
+    throw new Error(`Failed to download image: ${imageResponse.statusText}`);
+  }
+
+  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+  const base64Image = imageBuffer.toString("base64");
+
+  // Call Replicate API
+  // Using background-removal model: https://replicate.com/cjwbw/rembg
+  const response = await fetch("https://api.replicate.com/v1/predictions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Token ${REPLICATE_API_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      version: "fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003", // rembg model version
+      input: {
+        image: `data:image/png;base64,${base64Image}`,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(
+      `Replicate API failed: ${error.detail || response.statusText}`,
+    );
+  }
+
+  const prediction = await response.json();
+  
+  // Poll for completion
+  let result = prediction;
+  while (result.status === "starting" || result.status === "processing") {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
+      headers: {
+        "Authorization": `Token ${REPLICATE_API_TOKEN}`,
+      },
+    });
+    result = await statusResponse.json();
+  }
+
+  if (result.status === "failed" || !result.output) {
+    throw new Error(`Replicate prediction failed: ${result.error || "Unknown error"}`);
+  }
+
+  // Download result image
+  const resultImageResponse = await fetch(result.output);
+  if (!resultImageResponse.ok) {
+    throw new Error(`Failed to download result image: ${resultImageResponse.statusText}`);
+  }
+
+  const resultBuffer = Buffer.from(await resultImageResponse.arrayBuffer());
+
+  return {
+    imageBuffer: resultBuffer,
+    width: 0, // Will be set by caller using image processing library
+    height: 0, // Will be set by caller using image processing library
+  };
 }
 

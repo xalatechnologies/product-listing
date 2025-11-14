@@ -117,20 +117,62 @@ serve(async (req) => {
 });
 
 async function removeBackground(imageBlob: Blob): Promise<Blob> {
-  // TODO: Integrate with background removal service (Remove.bg API, etc.)
-  // For now, return original image
+  // Note: This function runs in Deno environment (Supabase Edge Functions)
+  // To implement background removal, use a Deno-compatible library or API:
+  // - Remove.bg API (requires REMOVEBG_API_KEY env var)
+  // - Replicate API with Deno fetch
+  // - Custom ML model deployed as separate service
+  
+  // Example implementation with Remove.bg:
+  // const REMOVEBG_API_KEY = Deno.env.get("REMOVEBG_API_KEY");
+  // if (REMOVEBG_API_KEY) {
+  //   const formData = new FormData();
+  //   formData.append("image_file", imageBlob);
+  //   const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+  //     method: "POST",
+  //     headers: { "X-Api-Key": REMOVEBG_API_KEY },
+  //     body: formData,
+  //   });
+  //   if (response.ok) {
+  //     return await response.blob();
+  //   }
+  // }
+  
+  // For now, return original image (background removal handled in main app)
   return imageBlob;
 }
 
 async function resizeImage(imageBlob: Blob, width: number, height: number): Promise<Blob> {
-  // TODO: Use image processing library (Sharp, etc.)
-  // For now, return original image
+  // Note: This function runs in Deno environment
+  // To implement image resizing, use a Deno-compatible library:
+  // - Use Canvas API (available in Deno Deploy)
+  // - Use image processing service API
+  // - Use WebAssembly image processing library
+  
+  // Example with Canvas API:
+  // const image = await createImageBitmap(imageBlob);
+  // const canvas = new OffscreenCanvas(width, height);
+  // const ctx = canvas.getContext("2d");
+  // ctx.drawImage(image, 0, 0, width, height);
+  // return await canvas.convertToBlob();
+  
+  // For now, return original image (resizing handled in main app with Sharp)
   return imageBlob;
 }
 
 async function optimizeImage(imageBlob: Blob): Promise<Blob> {
-  // TODO: Optimize image (compress, convert format, etc.)
-  // For now, return original image
+  // Note: This function runs in Deno environment
+  // To implement image optimization:
+  // - Use Canvas API for format conversion
+  // - Use WebAssembly image codec libraries
+  // - Use external optimization service API
+  
+  // Example optimization:
+  // - Convert to WebP format if supported
+  // - Compress JPEG quality
+  // - Strip EXIF data
+  
+  // For now, return original image (optimization handled in main app)
   return imageBlob;
 }
 
