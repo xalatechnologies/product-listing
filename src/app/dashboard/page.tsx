@@ -24,6 +24,7 @@ import {
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { CreditBalance } from "@/components/CreditBalance";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { ProjectStatus } from "@prisma/client";
 
 type SortOption = "newest" | "oldest" | "name-asc" | "name-desc";
@@ -150,6 +151,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <OnboardingTour />
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -168,7 +170,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Statistics Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8" data-onboarding="statistics">
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -218,7 +220,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8" data-onboarding="quick-actions">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Quick Actions
         </h2>

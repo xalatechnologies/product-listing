@@ -34,7 +34,7 @@ test.describe('Accessibility Tests', () => {
       await page.keyboard.press('Tab');
 
       // Verify focus is visible
-      const focused Element = await page.evaluateHandle(() => document.activeElement);
+      const focusedElement = await page.evaluateHandle(() => document.activeElement);
       const hasFocusIndicator = await page.evaluate(
         (el) => {
           const styles = window.getComputedStyle(el as Element);

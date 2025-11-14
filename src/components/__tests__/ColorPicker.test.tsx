@@ -5,7 +5,7 @@ import { ColorPicker } from '../ColorPicker';
 describe('ColorPicker', () => {
   it('should render color input', () => {
     const mockOnChange = vi.fn();
-    render(<ColorPicker value="#FF9900" onChange={mockOnChange} />);
+    render(<ColorPicker label="Color" value="#FF9900" onChange={mockOnChange} />);
 
     const input = screen.getByRole('textbox');
     expect(input).toBeInTheDocument();
@@ -13,7 +13,7 @@ describe('ColorPicker', () => {
 
   it('should display current color value', () => {
     const mockOnChange = vi.fn();
-    const { container } = render(<ColorPicker value="#FF9900" onChange={mockOnChange} />);
+    const { container } = render(<ColorPicker label="Color" value="#FF9900" onChange={mockOnChange} />);
 
     const input = container.querySelector('input[type="text"]') as HTMLInputElement;
     expect(input?.value).toBe('#FF9900');
@@ -21,7 +21,7 @@ describe('ColorPicker', () => {
 
   it('should call onChange when color is updated', () => {
     const mockOnChange = vi.fn();
-    const { container } = render(<ColorPicker value="#FF9900" onChange={mockOnChange} />);
+    const { container } = render(<ColorPicker label="Color" value="#FF9900" onChange={mockOnChange} />);
 
     const input = container.querySelector('input[type="text"]') as HTMLInputElement;
     if (input) {
@@ -32,7 +32,7 @@ describe('ColorPicker', () => {
 
   it('should validate hex color format', () => {
     const mockOnChange = vi.fn();
-    const { container } = render(<ColorPicker value="#FF9900" onChange={mockOnChange} />);
+    const { container } = render(<ColorPicker label="Color" value="#FF9900" onChange={mockOnChange} />);
 
     const input = container.querySelector('input[type="text"]') as HTMLInputElement;
     if (input) {
@@ -45,7 +45,7 @@ describe('ColorPicker', () => {
 
   it('should render color preview', () => {
     const mockOnChange = vi.fn();
-    const { container } = render(<ColorPicker value="#FF9900" onChange={mockOnChange} />);
+    const { container } = render(<ColorPicker label="Color" value="#FF9900" onChange={mockOnChange} />);
 
     const preview = container.querySelector('[data-testid="color-preview"]');
     if (preview) {

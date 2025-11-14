@@ -3,9 +3,10 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { NextRequest } from 'next/server';
 import { POST } from '../upload/route';
 import { createTestUser, createTestProject } from '../../../../tests/integration/setup';
-import { getServerAuthSession } from '@/lib/auth';
+import { getServerAuthSession, UserRole } from '@/lib/auth';
 
 // Mock NextAuth
 vi.mock('@/lib/auth', () => ({
@@ -45,7 +46,7 @@ describe('Upload API Route Integration Tests', () => {
         id: userId,
         email: 'user@example.com',
         name: 'Test User',
-        role: 'USER',
+        role: UserRole.user,
       },
       expires: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
     });
@@ -59,7 +60,7 @@ describe('Upload API Route Integration Tests', () => {
     formData.append('projectId', projectId);
     formData.append('type', 'product');
 
-    const request = new Request('http://localhost:3000/api/upload', {
+    const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
@@ -82,7 +83,7 @@ describe('Upload API Route Integration Tests', () => {
     formData.append('projectId', projectId);
     formData.append('type', 'product');
 
-    const request = new Request('http://localhost:3000/api/upload', {
+    const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
@@ -99,7 +100,7 @@ describe('Upload API Route Integration Tests', () => {
     formData.append('projectId', projectId);
     formData.append('type', 'product');
 
-    const request = new Request('http://localhost:3000/api/upload', {
+    const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
@@ -118,7 +119,7 @@ describe('Upload API Route Integration Tests', () => {
     formData.append('projectId', projectId);
     formData.append('type', 'product');
 
-    const request = new Request('http://localhost:3000/api/upload', {
+    const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
@@ -134,7 +135,7 @@ describe('Upload API Route Integration Tests', () => {
     formData.append('file', file);
     formData.append('type', 'product');
 
-    const request = new Request('http://localhost:3000/api/upload', {
+    const request = new NextRequest('http://localhost:3000/api/upload', {
       method: 'POST',
       body: formData,
     });
