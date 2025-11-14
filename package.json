@@ -32,7 +32,8 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "vitest --config vitest.integration.config.ts",
     "seed:test": "tsx scripts/seed-test-data.ts",
-    "verify:job-queue": "tsx scripts/verify-job-queue-setup.ts"
+    "verify:job-queue": "tsx scripts/verify-job-queue-setup.ts",
+    "test:job-queue": "tsx scripts/test-job-queue.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.931.0",
