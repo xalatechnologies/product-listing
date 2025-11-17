@@ -1,11 +1,18 @@
 "use client";
 
+/**
+ * AppLayout Component
+ * 
+ * Professional admin layout with sidebar navigation, top header, and main content area.
+ * Provides consistent structure across all admin pages.
+ */
+
 import { useState } from 'react';
 import { AppSidebar } from './AppSidebar';
 import { Search, Bell, Settings, User, LogOut, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 interface AppLayoutProps {
   readonly children: React.ReactNode;
@@ -15,6 +22,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const { data: session } = useSession();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +30,20 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       router.push(`/dashboard?search=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  // Get user display info
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'User';
+  const userEmail = session?.user?.email || '';
+  const userInitials = session?.user?.name
+    ? session.user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : userEmail
+      ? userEmail[0].toUpperCase()
+      : 'U';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
@@ -70,9 +92,10 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-3 p-2 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label="User menu"
+                aria-expanded={showUserMenu}
               >
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg">
-                  U
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white dark:ring-gray-900">
+                  {userInitials}
                 </div>
               </button>
 
@@ -82,15 +105,22 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
                   <div
                     className="fixed inset-0 z-10"
                     onClick={() => setShowUserMenu(false)}
+                    aria-hidden="true"
                   />
                   <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-20">
                     <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">User Account</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">user@example.com</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                        {userName}
+                      </p>
+                      {userEmail && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                          {userEmail}
+                        </p>
+                      )}
                     </div>
 
                     <Link
-                      href="/settings"
+                      href="/profile"
                       onClick={() => setShowUserMenu(false)}
                       className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >

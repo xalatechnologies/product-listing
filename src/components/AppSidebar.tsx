@@ -1,9 +1,17 @@
 "use client";
 
+/**
+ * AppSidebar Component
+ * 
+ * Professional sidebar navigation with collapsible functionality.
+ * Includes main navigation, quick actions, and user section.
+ */
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import {
   LayoutDashboard,
   FolderKanban,
@@ -78,6 +86,7 @@ export const AppSidebar = () => {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { data: session } = useSession();
 
   const isActiveRoute = (href: string): boolean => {
     if (href === '/dashboard') {
@@ -85,6 +94,20 @@ export const AppSidebar = () => {
     }
     return pathname?.startsWith(href) ?? false;
   };
+
+  // Get user display info
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'User';
+  const userEmail = session?.user?.email || '';
+  const userInitials = session?.user?.name
+    ? session.user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : userEmail
+      ? userEmail[0].toUpperCase()
+      : 'U';
 
   return (
     <>
@@ -241,13 +264,13 @@ export const AppSidebar = () => {
         {/* User Section */}
         <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-4">
           <Link
-            href="/settings"
+            href="/profile"
             onClick={() => setIsMobileOpen(false)}
             className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            aria-label="User settings"
+            aria-label="User profile"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-semibold text-white">
-              U
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-blue-600 text-sm font-semibold text-white ring-2 ring-white dark:ring-gray-900">
+              {userInitials}
             </div>
             {!isCollapsed && (
               <motion.div
@@ -256,11 +279,13 @@ export const AppSidebar = () => {
                 className="flex-1 min-w-0"
               >
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  User Account
+                  {userName}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                  View profile
-                </p>
+                {userEmail && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {userEmail}
+                  </p>
+                )}
               </motion.div>
             )}
           </Link>
@@ -353,21 +378,23 @@ export const AppSidebar = () => {
             {/* User Section */}
             <div className="border-t border-gray-200 dark:border-gray-800 px-4 py-4">
               <Link
-                href="/settings"
+                href="/profile"
                 onClick={() => setIsMobileOpen(false)}
                 className="flex items-center gap-3 rounded-xl px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="User settings"
+                aria-label="User profile"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-pink-500 text-sm font-semibold text-white">
-                  U
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-blue-600 text-sm font-semibold text-white ring-2 ring-white dark:ring-gray-900">
+                  {userInitials}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                    User Account
+                    {userName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    View profile
-                  </p>
+                  {userEmail && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {userEmail}
+                    </p>
+                  )}
                 </div>
               </Link>
             </div>

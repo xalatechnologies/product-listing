@@ -1,10 +1,14 @@
 /**
  * Internal API endpoint for processing A+ content generation jobs
  * Called by Supabase Edge Function to process queued A+ content jobs
+ * Uses Agent system for processing
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { APlusContentAgent } from "@/lib/agents/content/APlusContentAgent";
+import { createAgentContext } from "@/lib/agents/base";
+import { logAgentExecution } from "@/lib/agents/monitoring";
 
 // Verify this is called from Supabase Edge Function
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -18,7 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId, userId, generateImages } = await req.json();
+    const { projectId, userId, generateImages, jobId, isPremium } = await req.json();
 
     if (!projectId || !userId) {
       return NextResponse.json(
@@ -40,66 +44,60 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Generate A+ content using existing logic
-    const { analyzeProductForAPlus } = await import("@/lib/aplus/contentAnalysis");
-    const { getRandomTemplateForModule, applyBrandKitToTemplate } = await import("@/lib/aplus/templates");
-    const { getStandardModules } = await import("@/lib/aplus/moduleSpecs");
-
-    // Analyze product data
-    const analysis = await analyzeProductForAPlus({
-      productName: project.productName,
-      description: project.description || undefined,
-      category: project.productCategory || undefined,
-      productImages: project.productImages,
+    // Create agent context
+    const context = createAgentContext({
+      userId,
+      projectId,
+      jobId,
+      metadata: { generateImages, isPremium },
     });
 
-    // Generate modules
-    const availableModules = getStandardModules();
-    const selectedModules = availableModules.slice(0, Math.min(6, Math.max(4, analysis.modules.length)));
+    // Use APlusContentAgent to generate content
+    const agent = new APlusContentAgent();
+    const result = await agent.process(
+      {
+        productName: project.productName,
+        description: project.description || undefined,
+        category: project.productCategory || undefined,
+        productImages: project.productImages,
+        isPremium: isPremium || false,
+        brandKit: project.brandKit
+          ? {
+              primaryColor: project.brandKit.primaryColor,
+              secondaryColor: project.brandKit.secondaryColor,
+              accentColor: project.brandKit.accentColor,
+            }
+          : undefined,
+        generateImages: generateImages || false,
+      },
+      context,
+    );
 
-    const generatedModules = selectedModules.map((moduleSpec, index) => {
-      const moduleContent = analysis.modules[index] || analysis.modules[0]!;
-      const template = getRandomTemplateForModule(moduleSpec.id);
+    // Log execution
+    await logAgentExecution(agent.name, agent.version, result, { userId, projectId, jobId });
 
-      const finalTemplate = project.brandKit && template
-        ? applyBrandKitToTemplate(template, {
-            primaryColor: project.brandKit.primaryColor || undefined,
-            secondaryColor: project.brandKit.secondaryColor || undefined,
-            accentColor: project.brandKit.accentColor || undefined,
-          })
-        : template;
+    if (!result.success || !result.data) {
+      throw new Error(result.error?.message || "A+ content generation failed");
+    }
 
-      return {
-        type: moduleSpec.id,
-        templateId: finalTemplate?.id || `default-${moduleSpec.id}`,
-        content: {
-          headline: moduleContent.headline,
-          bodyText: moduleContent.bodyText,
-          imageDescriptions: moduleContent.imageDescriptions,
-          ...moduleContent.additionalContent,
-        },
-        template: finalTemplate ? JSON.parse(JSON.stringify(finalTemplate)) : null,
-      };
-    });
-
-    // Create or update APlusContent record
+    // Save to database
     await prisma.aPlusContent.upsert({
       where: { projectId },
       update: {
-        modules: generatedModules as any,
-        isPremium: false,
+        modules: result.data.modules as any,
+        isPremium: result.data.isPremium,
         updatedAt: new Date(),
       },
       create: {
         projectId,
-        modules: generatedModules as any,
-        isPremium: false,
+        modules: result.data.modules as any,
+        isPremium: result.data.isPremium,
       },
     });
 
     // Optionally generate images for A+ content modules
     let generatedImageCount = 0;
-    if (generateImages) {
+    if (generateImages && result.data.modules) {
       try {
         const { generateAPlusModuleImages } = await import("@/lib/aplus/imageGeneration");
         const productImageUrl = project.productImages?.[0]?.url;
@@ -107,7 +105,7 @@ export async function POST(req: NextRequest) {
         const imageResults = await generateAPlusModuleImages(
           projectId,
           userId,
-          generatedModules,
+          result.data.modules,
           project.productName,
           productImageUrl,
         );
@@ -122,6 +120,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ 
       success: true,
       generatedImageCount,
+      moduleCount: result.data.moduleCount,
     });
   } catch (error) {
     console.error("A+ processing error:", error);

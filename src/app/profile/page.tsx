@@ -29,6 +29,7 @@ import Link from "next/link";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { AppLayout } from "@/components/AppLayout";
 
 const PROVIDER_NAMES: Record<string, string> = {
   google: "Google",
@@ -120,26 +121,30 @@ export default function ProfilePage() {
 
   if (profileLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
-      </div>
+      <AppLayout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+        </div>
+      </AppLayout>
     );
   }
 
   if (!profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Failed to load profile</p>
+      <AppLayout>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center">
+            <AlertCircle className="mx-auto h-12 w-12 text-red-500" />
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Failed to load profile</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-      <div className="mx-auto max-w-4xl px-4 py-8">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -430,7 +435,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
 

@@ -1,11 +1,22 @@
 /**
  * Internal API endpoint for processing image generation jobs
  * Called by Supabase Edge Function to process queued jobs
+ * Uses Agent system for processing
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ProjectStatus, ImageType } from "@prisma/client";
+import {
+  MainImageAgent,
+  InfographicAgent,
+  FeatureHighlightAgent,
+  LifestyleAgent,
+  ComparisonChartAgent,
+  DimensionDiagramAgent,
+} from "@/lib/agents/generation";
+import { createAgentContext } from "@/lib/agents/base";
+import { logAgentExecution } from "@/lib/agents/monitoring";
 
 // Verify this is called from Supabase Edge Function
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -19,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { projectId, imageType, style, userId } = await req.json();
+    const { projectId, imageType, style, userId, jobId } = await req.json();
 
     if (!projectId || !imageType || !userId) {
       return NextResponse.json(
@@ -58,40 +69,103 @@ export async function POST(req: NextRequest) {
       data: { status: ProjectStatus.PROCESSING },
     });
 
-    // Generate image based on type
+    // Create agent context
+    const context = createAgentContext({
+      userId,
+      projectId,
+      jobId,
+      metadata: { imageType, style },
+    });
+
+    // Generate image based on type using agents
+    let result;
+    let agent;
+    
     switch (imageType) {
       case ImageType.MAIN_IMAGE: {
-        const { generateMainImage } = await import("@/lib/ai/generators/mainImage");
-        await generateMainImage(productImageUrl, projectId, userId);
+        agent = new MainImageAgent();
+        result = await agent.process(
+          {
+            productImageUrl,
+            projectId,
+            userId,
+          },
+          context,
+        );
         break;
       }
       case ImageType.INFOGRAPHIC: {
-        const { generateInfographic } = await import("@/lib/ai/generators/infographic");
-        await generateInfographic(projectId, userId, undefined, style);
+        agent = new InfographicAgent();
+        result = await agent.process(
+          {
+            projectId,
+            userId,
+            style,
+          },
+          context,
+        );
         break;
       }
       case ImageType.FEATURE_HIGHLIGHT: {
-        const { generateFeatureHighlight } = await import("@/lib/ai/generators/featureHighlight");
-        await generateFeatureHighlight(projectId, userId, undefined, style);
+        agent = new FeatureHighlightAgent();
+        result = await agent.process(
+          {
+            projectId,
+            userId,
+            style,
+          },
+          context,
+        );
         break;
       }
       case ImageType.LIFESTYLE: {
-        const { generateLifestyle } = await import("@/lib/ai/generators/lifestyle");
-        await generateLifestyle(projectId, userId, undefined, style);
+        agent = new LifestyleAgent();
+        result = await agent.process(
+          {
+            projectId,
+            userId,
+            style,
+          },
+          context,
+        );
         break;
       }
       case ImageType.COMPARISON_CHART: {
-        const { generateComparisonChart } = await import("@/lib/ai/generators/comparisonChart");
-        await generateComparisonChart(projectId, userId, "features", style);
+        agent = new ComparisonChartAgent();
+        result = await agent.process(
+          {
+            projectId,
+            userId,
+            comparisonType: "features",
+            style,
+          },
+          context,
+        );
         break;
       }
       case ImageType.DIMENSION_DIAGRAM: {
-        const { generateDimensionDiagram } = await import("@/lib/ai/generators/dimensionDiagram");
-        await generateDimensionDiagram(projectId, userId, undefined, style);
+        agent = new DimensionDiagramAgent();
+        result = await agent.process(
+          {
+            projectId,
+            userId,
+            style,
+          },
+          context,
+        );
         break;
       }
       default:
         throw new Error(`Unknown image type: ${imageType}`);
+    }
+    
+    // Log execution for all agents
+    if (agent && result) {
+      await logAgentExecution(agent.name, agent.version, result, { userId, projectId, jobId });
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || `${imageType} generation failed`);
+      }
     }
 
     // Check if all images are generated, then update status to COMPLETED
