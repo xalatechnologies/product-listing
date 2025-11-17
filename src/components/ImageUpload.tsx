@@ -328,6 +328,8 @@ interface ImagePreviewProps {
 
 export function ImagePreview({ images, onDelete, deletable = true }: ImagePreviewProps) {
   const utils = api.useUtils();
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  
   const deleteImage = api.image.deleteProductImage.useMutation({
     onSuccess: () => {
       // Invalidate product images list (need projectId from images)
@@ -344,6 +346,11 @@ export function ImagePreview({ images, onDelete, deletable = true }: ImagePrevie
     },
   });
 
+  const handleImageError = (imageId: string, imageUrl: string) => {
+    console.error(`Failed to load image ${imageId}:`, imageUrl);
+    setImageErrors((prev) => new Set(prev).add(imageId));
+  };
+
   if (images.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -355,31 +362,50 @@ export function ImagePreview({ images, onDelete, deletable = true }: ImagePrevie
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {images.map((image) => (
-        <div key={image.id} className="relative group">
-          <div className="relative w-full h-48 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800">
-            <Image
-              src={image.url}
-              alt="Product"
-              fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover"
-              loading="lazy"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-            />
+      {images.map((image) => {
+        const hasError = imageErrors.has(image.id);
+        
+        return (
+          <div key={image.id} className="relative group">
+            <div className="relative w-full h-48 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800">
+              {hasError ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500">
+                  <ImageIcon className="h-8 w-8 mb-2 opacity-50" />
+                  <p className="text-xs">Failed to load</p>
+                  <a
+                    href={image.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-1"
+                  >
+                    Open URL
+                  </a>
+                </div>
+              ) : (
+                <Image
+                  src={image.url}
+                  alt="Product"
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover"
+                  loading="lazy"
+                  onError={() => handleImageError(image.id, image.url)}
+                  unoptimized={image.url.startsWith("data:") || image.url.includes("supabase")}
+                />
+              )}
+            </div>
+            {deletable && !hasError && (
+              <button
+                onClick={() => deleteImage.mutate({ id: image.id })}
+                disabled={deleteImage.isPending}
+                className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 z-10"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          {deletable && (
-            <button
-              onClick={() => deleteImage.mutate({ id: image.id })}
-              disabled={deleteImage.isPending}
-              className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 z-10"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

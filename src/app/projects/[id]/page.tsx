@@ -9,8 +9,9 @@ import dynamic from "next/dynamic";
 import { api } from "@/lib/trpc/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Edit, Trash2, Download, Sparkles, FileText, Zap, X, Package, ImageIcon, Layers } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Download, Sparkles, FileText, Zap, X, Package, ImageIcon, Layers, Eye, Palette } from "lucide-react";
 import { ImageUpload, ImagePreview } from "@/components/ImageUpload";
+import { EnhancedProjectView } from "@/components/EnhancedProjectView";
 import { toast } from "react-toastify";
 import { ImageType } from "@prisma/client";
 import { subscribeToProjectStatus, subscribeToGeneratedImages } from "@/lib/supabase/realtime";
@@ -45,9 +46,10 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
     id: projectId,
   });
   const { data: productImages } = api.image.listProductImages.useQuery({ projectId });
-  const { data: generatedImages, refetch: refetchGeneratedImages } = api.image.list.useQuery({
+  const { data: generatedImages, refetch: refetchGeneratedImages, isLoading: generatedImagesLoading, error: generatedImagesError } = api.image.list.useQuery({
     projectId,
   });
+  const { data: aPlusContent } = api.aPlus.get.useQuery({ projectId });
 
   // Realtime subscriptions
   useEffect(() => {
@@ -169,136 +171,207 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   return (
     <AppLayout>
       <div className="max-w-[1800px] mx-auto">
-        {/* Breadcrumb Navigation */}
+        {/* Enhanced Breadcrumb Navigation */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 mb-6 text-sm text-gray-600 dark:text-gray-400"
+          className="flex items-center gap-3 mb-8 text-lg font-semibold"
         >
           <Link
             href="/dashboard"
-            className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+            className="text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
           >
             Dashboard
           </Link>
-          <span>/</span>
+          <span className="text-gray-400">/</span>
           <Link
             href="/projects"
-            className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+            className="text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
           >
             Projects
           </Link>
-          <span>/</span>
-          <span className="text-gray-900 dark:text-gray-100 font-medium">{project.name}</span>
+          <span className="text-gray-400">/</span>
+          <span className="text-gray-900 dark:text-gray-100">{project.name}</span>
         </motion.div>
 
-        {/* Header Section */}
+        {/* Enhanced Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-gray-800/90 dark:to-gray-900/90 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-gray-700 p-8 mb-8 shadow-xl"
+          className="bg-gradient-to-br from-amber-500 via-orange-500 to-blue-600 rounded-3xl border-2 border-amber-400/50 shadow-2xl overflow-hidden mb-8"
         >
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-3 bg-gradient-to-br from-amber-500 to-blue-600 rounded-2xl shadow-lg">
-                  <Package className="h-6 w-6 text-white" />
+          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl p-10">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+              <div className="flex-1">
+                <div className="flex items-center gap-6 mb-4">
+                  <div className="p-4 bg-gradient-to-br from-amber-500 to-blue-600 rounded-3xl shadow-xl">
+                    <Package className="h-10 w-10 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-gray-100 mb-2">
+                      {project.name}
+                    </h1>
+                    <p className="text-2xl font-semibold text-gray-600 dark:text-gray-400">
+                      {project.productName}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-                    {project.name}
-                  </h1>
-                  <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
-                    {project.productName}
+
+                {project.description && (
+                  <p className="text-xl text-gray-700 dark:text-gray-300 mt-6 max-w-4xl leading-relaxed">
+                    {project.description}
                   </p>
-                </div>
-              </div>
+                )}
 
-              {project.description && (
-                <p className="text-base text-gray-600 dark:text-gray-400 mt-4 max-w-3xl">
-                  {project.description}
-                </p>
-              )}
+                {/* Project Information Grid */}
+                {(project.productCategory || project.brandKit) && (
+                  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {project.productCategory && (
+                      <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-2xl p-6 border-2 border-indigo-200 dark:border-indigo-800">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Layers className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                          <dt className="text-lg font-bold text-gray-700 dark:text-gray-300">Category</dt>
+                        </div>
+                        <dd className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                          {project.productCategory}
+                        </dd>
+                      </div>
+                    )}
+                    {project.brandKit && (
+                      <div className="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 rounded-2xl p-6 border-2 border-pink-200 dark:border-pink-800">
+                        <div className="flex items-center gap-3 mb-2">
+                          <Palette className="h-6 w-6 text-pink-600 dark:text-pink-400" />
+                          <dt className="text-lg font-bold text-gray-700 dark:text-gray-300">Brand Kit</dt>
+                        </div>
+                        <dd className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                          <Link
+                            href={`/brand-kits/${project.brandKit.id}`}
+                            className="text-pink-600 hover:text-pink-700 dark:text-pink-400 hover:underline"
+                          >
+                            {project.brandKit.name}
+                          </Link>
+                        </dd>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              {/* Stats */}
-              <div className="flex flex-wrap items-center gap-6 mt-6">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`inline-flex items-center px-4 py-2 rounded-xl text-sm font-bold border-2 ${
-                      project.status === "COMPLETED"
-                        ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
-                        : project.status === "PROCESSING"
-                          ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20 animate-pulse"
-                          : project.status === "FAILED"
-                            ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
-                            : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
-                    }`}
-                  >
-                    {project.status}
-                  </span>
-                  {activeJobId && (
-                    <JobStatus
-                      jobId={activeJobId}
-                      onComplete={() => {
-                        refetchProject();
-                        refetchGeneratedImages();
-                        setActiveJobId(null);
-                      }}
-                      onError={(error) => {
-                        toast.error(`Job failed: ${error}`);
-                        setActiveJobId(null);
-                      }}
-                    />
+                {/* Enhanced Stats */}
+                <div className="flex flex-wrap items-center gap-6 mt-8">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`inline-flex items-center px-6 py-3 rounded-2xl text-lg font-bold border-2 ${
+                        project.status === "COMPLETED"
+                          ? "bg-green-500/20 text-green-800 dark:text-green-300 border-green-500/40"
+                          : project.status === "PROCESSING"
+                            ? "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40 animate-pulse"
+                            : project.status === "FAILED"
+                              ? "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40"
+                              : "bg-gray-500/20 text-gray-800 dark:text-gray-300 border-gray-500/40"
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                    {activeJobId && (
+                      <JobStatus
+                        jobId={activeJobId}
+                        onComplete={() => {
+                          refetchProject();
+                          refetchGeneratedImages();
+                          setActiveJobId(null);
+                        }}
+                        onError={(error) => {
+                          toast.error(`Job failed: ${error}`);
+                          setActiveJobId(null);
+                        }}
+                      />
+                    )}
+                  </div>
+                  {productImages && productImages.length > 0 && (
+                    <div className="flex items-center gap-3 px-6 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800">
+                      <ImageIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        {productImages.length}
+                      </span>
+                      <span className="text-lg text-gray-700 dark:text-gray-300">
+                        product image{productImages.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  )}
+                  {generatedImages && generatedImages.length > 0 && (
+                    <div className="flex items-center gap-3 px-6 py-3 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
+                      <Sparkles className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        {generatedImages.length}
+                      </span>
+                      <span className="text-lg text-gray-700 dark:text-gray-300">
+                        generated image{generatedImages.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  )}
+                  {aPlusContent && (
+                    <div className="flex items-center gap-3 px-6 py-3 bg-amber-50 dark:bg-amber-900/20 rounded-2xl border-2 border-amber-200 dark:border-amber-800">
+                      <FileText className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                        {aPlusContent.modules?.length || 0}
+                      </span>
+                      <span className="text-lg text-gray-700 dark:text-gray-300">
+                        A+ module{(aPlusContent.modules?.length || 0) !== 1 ? "s" : ""}
+                      </span>
+                    </div>
                   )}
                 </div>
-                {productImages && productImages.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <ImageIcon className="h-4 w-4" />
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      {productImages.length}
-                    </span>
-                    <span>product image{productImages.length !== 1 ? "s" : ""}</span>
-                  </div>
-                )}
-                {generatedImages && generatedImages.length > 0 && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <Sparkles className="h-4 w-4" />
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
-                      {generatedImages.length}
-                    </span>
-                    <span>generated image{generatedImages.length !== 1 ? "s" : ""}</span>
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Link
-                  href={`/projects/${projectId}/edit`}
-                  className="inline-flex items-center gap-2 rounded-xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-6 py-3 text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-md hover:shadow-lg"
+              {/* Enhanced Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link
+                    href={`/projects/${projectId}/edit`}
+                    className="inline-flex items-center gap-3 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-8 py-4 text-lg font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    <Edit className="h-6 w-6" />
+                    Edit Project
+                  </Link>
+                </motion.div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleDelete}
+                  disabled={deleteProject.isPending}
+                  className="inline-flex items-center gap-3 rounded-2xl border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 px-8 py-4 text-lg font-bold text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
                 >
-                  <Edit className="h-5 w-5" />
-                  Edit
-                </Link>
-              </motion.div>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleDelete}
-                disabled={deleteProject.isPending}
-                className="inline-flex items-center gap-2 rounded-xl border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 px-6 py-3 text-base font-semibold text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
-              >
-                <Trash2 className="h-5 w-5" />
-                Delete
-              </motion.button>
+                  <Trash2 className="h-6 w-6" />
+                  Delete
+                </motion.button>
+              </div>
             </div>
           </div>
         </motion.div>
 
+        {/* Enhanced Single-Page View - Everything Inline */}
+        <EnhancedProjectView
+          projectId={projectId}
+          productImages={productImages}
+          generatedImages={generatedImages}
+          aPlusContent={aPlusContent || null}
+          onGenerateImage={(type) => {
+            generateImage.mutate({ projectId, type });
+          }}
+          onGenerateCompletePack={() => {
+            generateCompletePack.mutate({ projectId, includeAPlus: false });
+          }}
+          onGenerateAPlus={(isPremium) => {
+            generateAPlus.mutate({ projectId, isPremium });
+          }}
+          isGenerating={generateImage.isPending}
+          isGeneratingPack={generateCompletePack.isPending}
+          isGeneratingAPlus={generateAPlus.isPending}
+        />
+
+        {/* Legacy sections - keeping for now but can be removed */}
         {/* Product Images Section */}
-        <motion.div
+        {/* <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -362,8 +435,27 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
             )}
           </div>
 
-          {generatedImages && generatedImages.length > 0 ? (
-            <ImagePreview images={generatedImages} deletable={false} />
+          {generatedImagesLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
+              <span className="ml-3 text-gray-600 dark:text-gray-400">Loading generated images...</span>
+            </div>
+          ) : generatedImagesError ? (
+            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+              <p className="text-red-700 dark:text-red-400 font-semibold">Error loading generated images</p>
+              <p className="text-sm text-red-600 dark:text-red-500 mt-2">Please refresh the page</p>
+            </div>
+          ) : generatedImages && generatedImages.length > 0 ? (
+            <ImagePreview 
+              images={generatedImages.map(img => {
+                // Debug: Log image URLs to help diagnose issues
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('Generated image:', { id: img.id, url: img.url, type: img.type });
+                }
+                return { id: img.id, url: img.url, width: img.width, height: img.height };
+              })} 
+              deletable={false} 
+            />
           ) : (
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800 p-12 text-center">
               <motion.div
@@ -542,30 +634,68 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
               <div className="p-2 bg-purple-500/20 rounded-xl">
                 <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">A+ Content</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">A+ Content</h2>
+                {aPlusContent && (
+                  <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">
+                    {aPlusContent.modules?.length || 0} modules • {aPlusContent.isPremium ? "Premium" : "Standard"}
+                  </p>
+                )}
+              </div>
             </div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Link
-                href={`/projects/${projectId}/aplus`}
+            {aPlusContent ? (
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href={`/projects/${projectId}/aplus`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-bold text-white hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
+                >
+                  <FileText className="h-4 w-4" />
+                  View & Edit A+ Content
+                </Link>
+              </motion.div>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAPlusModal(true)}
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-3 text-sm font-bold text-white hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
               >
-                <FileText className="h-4 w-4" />
-                Manage A+ Content
-              </Link>
-            </motion.div>
+                <Zap className="h-4 w-4" />
+                Generate A+ Content
+              </motion.button>
+            )}
           </div>
-          <p className="text-gray-700 dark:text-gray-300 mb-6">
-            Create professional Amazon A+ content modules for your product listing.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setShowAPlusModal(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-3 text-sm font-bold text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
-          >
-            <Zap className="h-4 w-4" />
-            Generate A+ Content
-          </motion.button>
+          {aPlusContent ? (
+            <div className="space-y-4">
+              <p className="text-gray-700 dark:text-gray-300">
+                Your A+ content has been generated with {aPlusContent.modules?.length || 0} modules. Click the button above to view, edit, and export your content.
+              </p>
+              <div className="flex gap-3">
+                <Link
+                  href={`/projects/${projectId}/aplus`}
+                  className="inline-flex items-center gap-2 rounded-xl border-2 border-purple-300 dark:border-purple-600 bg-white dark:bg-gray-800 px-6 py-3 text-sm font-semibold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                >
+                  <Eye className="h-4 w-4" />
+                  View A+ Content
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-gray-700 dark:text-gray-300 mb-6">
+                Create professional Amazon A+ content modules for your product listing.
+              </p>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAPlusModal(true)}
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 px-6 py-3 text-sm font-bold text-white hover:from-purple-600 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all"
+              >
+                <Zap className="h-4 w-4" />
+                Generate A+ Content
+              </motion.button>
+            </>
+          )}
         </motion.div>
 
         {/* Export Section */}
@@ -707,59 +837,67 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           )}
         </AnimatePresence>
 
-        {/* Project Info */}
+        {/* Enhanced Project Information */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border-2 border-gray-200 dark:border-gray-700 p-8 shadow-xl"
+          className="bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-800 dark:to-gray-900 rounded-3xl border-4 border-gray-200 dark:border-gray-700 p-10 shadow-2xl"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-gray-500/10 rounded-xl">
-              <Layers className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+          <div className="flex items-center gap-4 mb-8">
+            <div className="p-4 bg-gradient-to-br from-gray-500 to-slate-500 rounded-2xl">
+              <Layers className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Project Information</h3>
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Information</h3>
           </div>
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Product Name</dt>
-            <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {project.productName}
-            </dd>
-          </div>
-          {project.productCategory && (
-            <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Category</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                {project.productCategory}
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700">
+              <dt className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-2">Product Name</dt>
+              <dd className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                {project.productName}
               </dd>
             </div>
-          )}
-          {project.brandKit && (
-            <div>
-              <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Brand Kit</dt>
-              <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                <Link
-                  href={`/brand-kits/${project.brandKit.id}`}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                >
-                  {project.brandKit.name}
-                </Link>
+            {project.productCategory && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700">
+                <dt className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-2">Category</dt>
+                <dd className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  {project.productCategory}
+                </dd>
+              </div>
+            )}
+            {project.brandKit && (
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700">
+                <dt className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-2">Brand Kit</dt>
+                <dd className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                  <Link
+                    href={`/brand-kits/${project.brandKit.id}`}
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 hover:underline transition-colors"
+                  >
+                    {project.brandKit.name}
+                  </Link>
+                </dd>
+              </div>
+            )}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700">
+              <dt className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-2">Created</dt>
+              <dd className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {new Date(project.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </dd>
             </div>
-          )}
-          <div>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Created</dt>
-            <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {new Date(project.createdAt).toLocaleDateString()}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Last Updated</dt>
-            <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
-              {new Date(project.updatedAt).toLocaleDateString()}
-            </dd>
-          </div>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-gray-200 dark:border-gray-700">
+              <dt className="text-lg font-bold text-gray-600 dark:text-gray-400 mb-2">Last Updated</dt>
+              <dd className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {new Date(project.updatedAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </dd>
+            </div>
           </dl>
         </motion.div>
       </div>

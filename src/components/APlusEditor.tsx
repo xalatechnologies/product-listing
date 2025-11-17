@@ -197,43 +197,44 @@ export function APlusEditor({
 
   return (
     <div className="h-full flex flex-col bg-gray-50 dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-4 flex-1">
+      {/* Enhanced Toolbar */}
+      <div className="flex items-center justify-between px-8 py-4 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-b-2 border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-6 flex-1">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            aria-label="Toggle sidebar"
           >
-            {sidebarOpen ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+            {sidebarOpen ? <ChevronLeft className="h-6 w-6" /> : <ChevronRight className="h-6 w-6" />}
           </button>
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <div className="relative flex-1 max-w-lg">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search modules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-4 py-3 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
           </div>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-lg font-semibold text-gray-700 dark:text-gray-300 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl">
             {filteredModules.length} of {modules.length}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setPreviewMode(previewMode === "split" ? "full" : "split")}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
             title={previewMode === "split" ? "Full preview" : "Split view"}
           >
-            {previewMode === "split" ? <Maximize2 className="h-5 w-5" /> : <Minimize2 className="h-5 w-5" />}
+            {previewMode === "split" ? <Maximize2 className="h-6 w-6" /> : <Minimize2 className="h-6 w-6" />}
           </button>
           <button
             onClick={() => updateMutation.mutate({ projectId, modules })}
             disabled={updateMutation.isPending}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all shadow-lg hover:shadow-xl"
           >
-            <Save className="h-4 w-4" />
+            <Save className="h-5 w-5" />
             {updateMutation.isPending ? "Saving..." : "Save"}
           </button>
         </div>
@@ -241,13 +242,13 @@ export function APlusEditor({
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar */}
+        {/* Enhanced Sidebar */}
         {sidebarOpen && (
-          <div className="w-80 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto">
-            <div className="p-4 space-y-2">
+          <div className="w-96 border-r-2 border-gray-200 dark:border-gray-700 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 overflow-y-auto">
+            <div className="p-6 space-y-4">
               {filteredModules.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                  <p className="text-sm">No modules found</p>
+                <div className="text-center py-16 text-gray-500 dark:text-gray-400">
+                  <p className="text-xl font-semibold">No modules found</p>
                 </div>
               ) : (
                 filteredModules.map((module, displayIndex) => {
@@ -269,43 +270,43 @@ export function APlusEditor({
                       }}
                       onClick={() => setSelectedIndex(actualIndex)}
                       className={`
-                        group relative p-4 rounded-xl border-2 cursor-pointer transition-all
+                        group relative p-6 rounded-2xl border-4 cursor-pointer transition-all shadow-lg hover:shadow-xl
                         ${isSelected
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md"
+                          ? "border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 shadow-xl scale-[1.02]"
                           : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 bg-white dark:bg-gray-800"
                         }
                         ${isDragging ? "opacity-50 scale-95" : ""}
                         ${isHovered && draggedIndex !== null ? "border-blue-400 border-dashed" : ""}
                       `}
                     >
-                      <div className="absolute left-2 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <GripVertical className="h-4 w-4 text-gray-400" />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <GripVertical className="h-5 w-5 text-gray-400" />
                       </div>
-                      <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-semibold flex items-center justify-center">
+                      <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 text-white text-lg font-bold flex items-center justify-center shadow-lg">
                         {actualIndex + 1}
                       </div>
-                      <div className="pl-6 pr-8">
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 line-clamp-1">
+                      <div className="pl-8 pr-12">
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 line-clamp-2">
                           {module.content.headline || `Module ${actualIndex + 1}`}
                         </h4>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-sm px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold">
                             {module.type}
                           </span>
                           {module.content.imageDescriptions && module.content.imageDescriptions.length > 0 && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                              <ImageIcon className="h-3 w-3" />
+                            <span className="text-base text-gray-600 dark:text-gray-400 flex items-center gap-2 font-semibold">
+                              <ImageIcon className="h-5 w-5" />
                               {module.content.imageDescriptions.length}
                             </span>
                           )}
                         </div>
                         {module.content.bodyText && (
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                          <p className="text-base text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed">
                             {module.content.bodyText}
                           </p>
                         )}
                       </div>
-                      <div className="absolute bottom-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute bottom-4 right-4 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         {module.content.imageDescriptions && module.content.imageDescriptions.length > 0 && (
                           <button
                             onClick={(e) => {
@@ -313,10 +314,10 @@ export function APlusEditor({
                               generateImagesMutation.mutate({ projectId, moduleIndex: actualIndex });
                             }}
                             disabled={generateImagesMutation.isPending}
-                            className="p-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+                            className="p-2.5 hover:bg-purple-100 dark:hover:bg-purple-900/30 rounded-xl text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
                             title="Generate images"
                           >
-                            <Sparkles className="h-3 w-3" />
+                            <Sparkles className="h-5 w-5" />
                           </button>
                         )}
                         <button
@@ -324,30 +325,30 @@ export function APlusEditor({
                             e.stopPropagation();
                             handleDuplicate(actualIndex);
                           }}
-                          className="p-1.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded text-gray-600 dark:text-gray-400 hover:text-green-600"
+                          className="p-2.5 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-xl text-gray-600 dark:text-gray-400 hover:text-green-600 transition-colors"
                           title="Duplicate"
                         >
-                          <Copy className="h-3 w-3" />
+                          <Copy className="h-5 w-5" />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEdit(actualIndex);
                           }}
-                          className="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded text-gray-600 dark:text-gray-400 hover:text-blue-600"
+                          className="p-2.5 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-xl text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors"
                           title="Edit"
                         >
-                          <Edit2 className="h-3 w-3" />
+                          <Edit2 className="h-5 w-5" />
                         </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(actualIndex);
                           }}
-                          className="p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded text-gray-600 dark:text-gray-400 hover:text-red-600"
+                          className="p-2.5 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-xl text-gray-600 dark:text-gray-400 hover:text-red-600 transition-colors"
                           title="Delete"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
                     </div>
@@ -362,48 +363,48 @@ export function APlusEditor({
         <div className="flex-1 flex overflow-hidden">
           {previewMode === "split" ? (
             <>
-              {/* Editor Panel */}
-              <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-800">
+              {/* Enhanced Editor Panel */}
+              <div className="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900">
                 {editingIndex !== null && editedContent ? (
-                  <div className="max-w-3xl mx-auto space-y-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Module</h3>
+                  <div className="max-w-4xl mx-auto space-y-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Module</h3>
                       <button
                         onClick={() => {
                           setEditingIndex(null);
                           setEditedContent(null);
                         }}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                        className="p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
                       >
-                        <X className="h-5 w-5" />
+                        <X className="h-6 w-6" />
                       </button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">
                           Headline
                         </label>
                         <input
                           type="text"
                           value={editedContent.headline || ""}
                           onChange={(e) => setEditedContent({ ...editedContent, headline: e.target.value })}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">
                           Body Text
                         </label>
                         <textarea
                           value={editedContent.bodyText || ""}
                           onChange={(e) => setEditedContent({ ...editedContent, bodyText: e.target.value })}
-                          rows={8}
-                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                          rows={10}
+                          className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all leading-relaxed"
                         />
                       </div>
                       {editedContent.bullets && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          <label className="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">
                             Bullet Points
                           </label>
                           <textarea
@@ -414,15 +415,15 @@ export function APlusEditor({
                                 bullets: e.target.value.split("\n").filter((b) => b.trim()),
                               })
                             }
-                            rows={6}
-                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
+                            rows={8}
+                            className="w-full px-6 py-4 text-lg border-2 border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all leading-relaxed"
                           />
                         </div>
                       )}
-                      <div className="flex gap-3">
+                      <div className="flex gap-4 pt-4">
                         <button
                           onClick={handleSave}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                          className="px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-lg font-bold rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
                         >
                           Save Changes
                         </button>
@@ -431,7 +432,7 @@ export function APlusEditor({
                             setEditingIndex(null);
                             setEditedContent(null);
                           }}
-                          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="px-8 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 text-lg font-semibold transition-all"
                         >
                           Cancel
                         </button>
@@ -439,13 +440,13 @@ export function APlusEditor({
                     </div>
                   </div>
                 ) : selectedModule ? (
-                  <div className="max-w-3xl mx-auto space-y-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  <div className="max-w-4xl mx-auto space-y-8">
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 border-2 border-blue-200 dark:border-blue-800 shadow-lg">
+                      <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                         {selectedModule.content.headline || "Module"}
                       </h2>
-                      <div className="flex items-center gap-3">
-                        <span className="px-3 py-1 bg-blue-600 text-white text-sm rounded-full">
+                      <div className="flex items-center gap-4">
+                        <span className="px-4 py-2 bg-blue-600 text-white text-base font-bold rounded-xl">
                           {selectedModule.type}
                         </span>
                         {selectedModule.content.imageDescriptions && selectedModule.content.imageDescriptions.length > 0 && (
@@ -454,35 +455,35 @@ export function APlusEditor({
                               generateImagesMutation.mutate({ projectId, moduleIndex: selectedIndex! });
                             }}
                             disabled={generateImagesMutation.isPending}
-                            className="inline-flex items-center gap-2 px-3 py-1 bg-purple-600 text-white text-sm rounded-full hover:bg-purple-700 disabled:opacity-50 transition-all hover:scale-105"
+                            className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-base font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-all hover:scale-105 shadow-lg"
                           >
-                            <Sparkles className="h-3 w-3" />
+                            <Sparkles className="h-5 w-5" />
                             {generateImagesMutation.isPending ? "Generating..." : "Generate Images"}
                           </button>
                         )}
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Content</h3>
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-700 shadow-lg">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Content</h3>
                       {selectedModule.content.bodyText && (
-                        <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                           {selectedModule.content.bodyText}
                         </p>
                       )}
                       {selectedModule.content.bullets && selectedModule.content.bullets.length > 0 && (
-                        <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
+                        <ul className="list-disc list-inside space-y-3 text-lg text-gray-700 dark:text-gray-300">
                           {selectedModule.content.bullets.map((bullet, i) => (
-                            <li key={i}>{bullet}</li>
+                            <li key={i} className="leading-relaxed">{bullet}</li>
                           ))}
                         </ul>
                       )}
                     </div>
 
                     {selectedModule.content.imageDescriptions && selectedModule.content.imageDescriptions.length > 0 && (
-                      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 border-2 border-gray-200 dark:border-gray-700 shadow-lg">
+                        <div className="flex items-center justify-between mb-6">
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                             Image Descriptions ({selectedModule.content.imageDescriptions.length})
                           </h3>
                           <button
@@ -490,35 +491,35 @@ export function APlusEditor({
                               generateImagesMutation.mutate({ projectId, moduleIndex: selectedIndex! });
                             }}
                             disabled={generateImagesMutation.isPending}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-all hover:scale-105 shadow-md"
+                            className="inline-flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-base font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 transition-all hover:scale-105 shadow-lg"
                           >
-                            <Sparkles className="h-3 w-3" />
+                            <Sparkles className="h-5 w-5" />
                             Generate All
                           </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {selectedModule.content.imageDescriptions.map((desc, i) => {
                             const imageIndex = i % allImages.length;
                             const image = allImages[imageIndex];
                             return (
                               <div
                                 key={i}
-                                className="group relative p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-600 transition-all"
+                                className="group relative p-5 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-600 transition-all"
                               >
-                                <div className="flex items-start gap-3">
+                                <div className="flex items-start gap-4">
                                   {image ? (
-                                    <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                      <Image src={image.url} alt={desc} fill className="object-cover" sizes="64px" />
+                                    <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+                                      <Image src={image.url} alt={desc} fill className="object-cover" sizes="80px" />
                                     </div>
                                   ) : (
-                                    <div className="w-16 h-16 rounded-lg bg-gray-200 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
-                                      <ImageIcon className="h-6 w-6 text-gray-400" />
+                                    <div className="w-20 h-20 rounded-xl bg-gray-200 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                                      <ImageIcon className="h-8 w-8 text-gray-400" />
                                     </div>
                                   )}
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{desc}</p>
+                                    <p className="text-base text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed">{desc}</p>
                                     {image && (
-                                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-block">
+                                      <span className="text-sm text-gray-500 dark:text-gray-400 mt-2 inline-block font-semibold">
                                         {image.source === "product" ? "Product Image" : "Generated"}
                                       </span>
                                     )}
@@ -534,43 +535,43 @@ export function APlusEditor({
                 ) : (
                   <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                     <div className="text-center">
-                      <p className="text-lg font-medium mb-2">Select a module to edit</p>
-                      <p className="text-sm">Choose a module from the sidebar</p>
+                      <p className="text-2xl font-bold mb-3">Select a module to edit</p>
+                      <p className="text-lg">Choose a module from the sidebar</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Preview Panel */}
-              <div className="w-1/2 border-l border-gray-200 dark:border-gray-700 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-6">
+              {/* Enhanced Preview Panel */}
+              <div className="w-1/2 border-l-2 border-gray-200 dark:border-gray-700 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 p-8">
                 {selectedModule ? (
                   <div className="max-w-2xl mx-auto">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border-2 border-gray-200 dark:border-gray-700">
                       <div
-                        className="px-6 py-4 border-b border-gray-200 dark:border-gray-700"
+                        className="px-8 py-6 border-b-2 border-gray-200 dark:border-gray-700"
                         style={{
                           backgroundColor: brandKit?.primaryColor ? `${brandKit.primaryColor}15` : undefined,
                         }}
                       >
-                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                        <h4 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                           {selectedModule.content.headline || "Module Preview"}
                         </h4>
                       </div>
-                      <div className="p-6">
+                      <div className="p-8">
                         {selectedModule.content.bodyText && (
-                          <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                          <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                             {selectedModule.content.bodyText}
                           </p>
                         )}
                         {selectedModule.content.imageDescriptions && selectedModule.content.imageDescriptions.length > 0 && (
-                          <div className="grid grid-cols-2 gap-3 mt-4">
+                          <div className="grid grid-cols-2 gap-4 mt-6">
                             {selectedModule.content.imageDescriptions.map((desc, i) => {
                               const imageIndex = i % allImages.length;
                               const image = allImages[imageIndex];
                               return (
                                 <div
                                   key={i}
-                                  className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden"
+                                  className="relative aspect-square bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg"
                                 >
                                   {image ? (
                                     <Image
@@ -582,7 +583,7 @@ export function APlusEditor({
                                     />
                                   ) : (
                                     <div className="w-full h-full flex items-center justify-center">
-                                      <ImageIcon className="h-8 w-8 text-gray-400" />
+                                      <ImageIcon className="h-10 w-10 text-gray-400" />
                                     </div>
                                   )}
                                 </div>
@@ -596,7 +597,8 @@ export function APlusEditor({
                 ) : (
                   <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
                     <div className="text-center">
-                      <p className="text-sm">Select a module to preview</p>
+                      <p className="text-2xl font-bold mb-3">Select a module to preview</p>
+                      <p className="text-lg">Choose a module from the sidebar</p>
                     </div>
                   </div>
                 )}
@@ -617,13 +619,13 @@ export function APlusEditor({
                         backgroundColor: brandKit?.primaryColor ? `${brandKit.primaryColor}15` : undefined,
                       }}
                     >
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                      <h4 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {module.content.headline || `Module ${index + 1}`}
                       </h4>
                     </div>
-                    <div className="p-6">
+                    <div className="p-8">
                       {module.content.bodyText && (
-                        <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                        <p className="text-lg text-gray-700 dark:text-gray-300 mb-6 leading-relaxed">
                           {module.content.bodyText}
                         </p>
                       )}

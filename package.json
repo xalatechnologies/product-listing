@@ -32,6 +32,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "vitest --config vitest.integration.config.ts",
     "seed:test": "tsx scripts/seed-test-data.ts",
+    "seed:projects": "tsx scripts/create-comprehensive-test-projects.ts",
     "verify:job-queue": "tsx scripts/verify-job-queue-setup.ts",
     "test:job-queue": "tsx scripts/test-job-queue.ts"
   },
