@@ -12,7 +12,11 @@ import { useEffect } from "react";
 import { subscribeToCredits } from "@/lib/supabase/realtime";
 import { useSession } from "next-auth/react";
 
-export function CreditBalance() {
+interface CreditBalanceProps {
+  readonly compact?: boolean;
+}
+
+export function CreditBalance({ compact = false }: CreditBalanceProps) {
   const { data: session } = useSession();
   const { data: credits, refetch } = api.subscription.getCredits.useQuery(undefined, {
     refetchInterval: 30000, // Poll every 30 seconds for updates
@@ -34,8 +38,19 @@ export function CreditBalance() {
     };
   }, [session?.user?.id, refetch]);
 
+  if (compact) {
+    return (
+      <div className="bg-gradient-to-br from-amber-500 to-blue-600 rounded-lg p-3 text-white">
+        <div className="flex items-center justify-center gap-2">
+          <Coins className="h-4 w-4" />
+          <span className="text-lg font-bold">{balance.toLocaleString()}</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg p-6 text-white">
+    <div className="bg-gradient-to-br from-amber-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
       <div className="flex justify-between items-start">
         <div>
           <div className="flex items-center gap-2 mb-2">

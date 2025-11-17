@@ -52,9 +52,13 @@ const onboardingSteps: OnboardingStep[] = [
 export function OnboardingTour() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
+    // Mark as mounted to prevent hydration mismatch
+    setMounted(true);
+    
     // Check if user has completed onboarding
     const hasCompletedOnboarding = localStorage.getItem("onboarding_completed") === "true";
     
@@ -64,6 +68,9 @@ export function OnboardingTour() {
       setTimeout(() => setIsVisible(true), 500);
     }
   }, []);
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted || !isVisible) return null;
 
   const handleNext = () => {
     if (currentStep < onboardingSteps.length - 1) {

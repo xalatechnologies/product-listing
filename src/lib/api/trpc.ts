@@ -12,6 +12,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession, UserRole } from "../auth";
 import { prisma } from "../db";
+import { safeLogError } from "../utils/errorUtils";
 
 /**
  * 1. CONTEXT
@@ -41,7 +42,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
       ...opts,
     };
   } catch (error) {
-    console.error("Error creating tRPC context:", error);
+    safeLogError("tRPC Context Creation", error);
     // Return context without session if there's an error
     return {
       session: null,

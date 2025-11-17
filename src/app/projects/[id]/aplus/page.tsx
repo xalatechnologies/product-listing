@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Zap, FileText, X, ImageIcon } from "lucide-react";
 import { toast } from "react-toastify";
+import { AppLayout } from "@/components/AppLayout";
+import { safeLogError } from "@/lib/utils/errorUtils";
 
 // Dynamic imports for code splitting
 const APlusEditor = dynamic(() => import("@/components/APlusEditor").then((mod) => ({ default: mod.APlusEditor })), {
@@ -52,9 +54,12 @@ export default function APlusPage({ params }: APlusPageProps) {
     },
   );
 
-  // Handle errors
+  // Handle errors (sanitized to prevent 431 errors)
   if (projectError || productImagesError || generatedImagesError || aPlusError) {
-    console.error("A+ page errors:", { projectError, productImagesError, generatedImagesError, aPlusError });
+    if (projectError) safeLogError("A+ Page - Project", projectError);
+    if (productImagesError) safeLogError("A+ Page - Product Images", productImagesError);
+    if (generatedImagesError) safeLogError("A+ Page - Generated Images", generatedImagesError);
+    if (aPlusError) safeLogError("A+ Page - A+ Content", aPlusError);
   }
 
   const generateAPlus = api.aPlus.generate.useMutation({
@@ -82,28 +87,30 @@ export default function APlusPage({ params }: APlusPageProps) {
 
   if (projectLoading || aPlusLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
+        </div>
+      </AppLayout>
     );
   }
 
   if (!project) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="text-center py-12">
+      <AppLayout>
+        <div className="max-w-2xl mx-auto text-center py-20">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Project not found
           </h2>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 

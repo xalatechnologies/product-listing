@@ -9,6 +9,7 @@ import { api } from "@/lib/trpc/react";
 import { ProjectForm } from "@/components/ProjectForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { AppLayout } from "@/components/AppLayout";
 
 interface EditProjectPageProps {
   params: Promise<{ id: string }>;
@@ -22,16 +23,18 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
+        </div>
+      </AppLayout>
     );
   }
 
   if (!project) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="text-center py-12">
+      <AppLayout>
+        <div className="max-w-2xl mx-auto text-center py-20">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Project not found
           </h2>
@@ -40,49 +43,53 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Link
-        href={`/projects/${projectId}`}
-        className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Project
-      </Link>
+    <AppLayout>
+      <div className="max-w-4xl mx-auto">
+        <Link
+          href={`/projects/${projectId}`}
+          className="inline-flex items-center gap-2 text-base font-medium text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 mb-8 transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Back to Project
+        </Link>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Edit Project</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Update your project details
-        </p>
-      </div>
+        <div className="mb-12">
+          <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 bg-clip-text text-transparent mb-4">
+            Edit Project
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-xl">
+            Update your project details and settings
+          </p>
+        </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <ProjectForm
-          projectId={projectId}
-          initialData={{
-            name: project.name,
-            description: project.description || undefined,
-            productName: project.productName,
-            productCategory: project.productCategory || undefined,
-            brandKitId: project.brandKitId || undefined,
-          }}
-          onSuccess={() => {
-            window.location.href = `/projects/${projectId}`;
-          }}
-        />
+        <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl border-2 border-gray-200 dark:border-gray-700 p-10 shadow-2xl">
+          <ProjectForm
+            projectId={projectId}
+            initialData={{
+              name: project.name,
+              description: project.description || undefined,
+              productName: project.productName,
+              productCategory: project.productCategory || undefined,
+              brandKitId: project.brandKitId || undefined,
+            }}
+            onSuccess={() => {
+              window.location.href = `/projects/${projectId}`;
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }
 

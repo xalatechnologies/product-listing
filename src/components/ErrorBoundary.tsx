@@ -6,6 +6,7 @@
 
 import React from "react";
 import { AlertTriangle } from "lucide-react";
+import { safeLogError } from "@/lib/utils/errorUtils";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -34,8 +35,12 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error for debugging
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    // Log error for debugging (sanitized to prevent 431 errors)
+    safeLogError("ErrorBoundary", error);
+    // Log errorInfo separately with limited data
+    console.error("ErrorInfo:", {
+      componentStack: errorInfo.componentStack?.split("\n").slice(0, 10).join("\n"), // Limit component stack
+    });
   }
 
   resetError = () => {

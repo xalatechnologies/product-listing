@@ -16,6 +16,7 @@ import { ImageType } from "@prisma/client";
 import { subscribeToProjectStatus, subscribeToGeneratedImages } from "@/lib/supabase/realtime";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { JobStatus } from "@/components/JobStatus";
+import { AppLayout } from "@/components/AppLayout";
 
 // Dynamic import for code splitting
 const ExportSelector = dynamic(() => import("@/components/ExportSelector").then((mod) => ({ default: mod.ExportSelector })), {
@@ -134,16 +135,18 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600" />
+        </div>
+      </AppLayout>
     );
   }
 
   if (!project) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="text-center py-12">
+      <AppLayout>
+        <div className="max-w-2xl mx-auto text-center py-20">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Project not found
           </h2>
@@ -152,53 +155,54 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </p>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
           </Link>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <AppLayout>
+      <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-12">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
+          className="inline-flex items-center gap-2 text-base font-medium text-gray-600 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 mb-6 transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
           Back to Dashboard
         </Link>
 
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
+          <div className="flex-1">
+            <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-amber-600 via-orange-500 to-blue-600 bg-clip-text text-transparent mb-3">
               {project.name}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">{project.productName}</p>
+            <p className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">{project.productName}</p>
             {project.description && (
-              <p className="text-gray-500 dark:text-gray-500 mt-2">{project.description}</p>
+              <p className="text-base text-gray-600 dark:text-gray-400 mt-3 max-w-3xl">{project.description}</p>
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Link
               href={`/projects/${projectId}/edit`}
-              className="inline-flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="inline-flex items-center gap-2 rounded-2xl border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-6 py-3 text-base font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-md hover:shadow-lg"
             >
-              <Edit className="h-4 w-4" />
+              <Edit className="h-5 w-5" />
               Edit
             </Link>
             <button
               onClick={handleDelete}
               disabled={deleteProject.isPending}
-              className="inline-flex items-center gap-2 rounded-md border border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-2xl border-2 border-red-300 dark:border-red-600 bg-white dark:bg-gray-800 px-6 py-3 text-base font-semibold text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-5 w-5" />
               Delete
             </button>
           </div>
@@ -206,16 +210,16 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       </div>
 
       {/* Status Badge */}
-      <div className="mb-8 flex items-center gap-4">
+      <div className="mb-10 flex items-center gap-4">
         <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+          className={`inline-flex items-center px-5 py-2.5 rounded-2xl text-base font-bold border-2 ${
             project.status === "COMPLETED"
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              ? "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
               : project.status === "PROCESSING"
-                ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20 animate-pulse"
                 : project.status === "FAILED"
-                  ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                  : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                  ? "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20"
+                  : "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20"
           }`}
         >
           {project.status}
@@ -237,13 +241,13 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       </div>
 
       {/* Product Images Section */}
-      <div className="mb-12">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <div className="mb-16">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100">
             Product Images
           </h2>
           {productImages && productImages.length > 0 && (
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-base font-semibold text-gray-600 dark:text-gray-400 px-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-xl">
               {productImages.length} image{productImages.length !== 1 ? "s" : ""}
             </span>
           )}
@@ -265,14 +269,14 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
       </div>
 
       {/* Generated Images Section */}
-      <div className="mb-12">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Generated Listing Images
+      <div className="mb-16">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-gray-100">
+            AI Generated Images
           </h2>
           {generatedImages && generatedImages.length > 0 && (
-            <button className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-              <Download className="h-4 w-4" />
+            <button className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-base font-bold text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all">
+              <Download className="h-5 w-5" />
               Download All
             </button>
           )}
@@ -595,7 +599,8 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
           </div>
         </dl>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
 
